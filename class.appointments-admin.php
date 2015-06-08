@@ -21,7 +21,7 @@ class Appointmentadmin{
 	}
 	
 	public static function admin_menu() {
-		add_menu_page('Appointments', 'aw-appointments', '','aw-appointments/admin.php','','dashicons-calendar-alt', 4.55);
+		add_menu_page('Appointments', 'Appointments', 'manage_options','aw-appointments/admin/index.php','','dashicons-backup', 4.55);
 	}
 	
 	

@@ -38,7 +38,7 @@ class Appointments{
 			$aw_appointments=json_decode($aw_appointments, true);
 			if($aw_appointments==NULL) $aw_appointments=self::aw_appointments();
 
-			if( $aw_appointments['ver'] == "" ) {
+			if( $aw_appointments['ver'] == "0" ) {
 				$aw_appointments['ver']=AW_APPOINTMENT_VERSION;
 				$sql = "CREATE TABLE ".self::appointmenttable()." (`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
 					`docid` smallint(6) unsigned DEFAULT NULL,
