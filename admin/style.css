@@ -1,0 +1,118 @@
+@CHARSET "UTF-8";
+
+.aw-appointment{
+	padding:3px 5px;		
+}
+
+.aw-appointment .panel {
+  margin-bottom: 20px;
+  background-color: #fff;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+          box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+}
+.aw-appointment .panel-body {
+  padding: 15px;
+}
+.aw-appointment .panel-heading {
+  padding: 10px 15px;
+  border-bottom: 1px solid transparent;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+.aw-appointment .panel-default {
+  border-color: #ddd;
+}
+.aw-appointment .panel-default > .panel-heading {
+  color: #333;
+  background-color: #f5f5f5;
+  border-color: #ddd;
+}
+.aw-appointment .panel-default > .panel-heading + .panel-collapse > .panel-body {
+  border-top-color: #ddd;
+}
+.aw-appointment .panel-default > .panel-heading .badge {
+  color: #f5f5f5;
+  background-color: #333;
+}
+.aw-appointment .panel-default > .panel-footer + .panel-collapse > .panel-body {
+  border-bottom-color: #ddd;
+}
+
+.aw-appointment .nav-tabs{
+	list-style:none;
+	margin:0;
+	padding:0;
+}
+.aw-appointment .nav-tabs li{
+	float:left;	
+	margin:0;
+}
+.aw-appointment .nav-tabs li a{
+	display:inline-block;
+	padding:10px 15px;
+	color:#0074A2;
+	line-height:1.5;
+	font-size:14px;
+	text-decoration:none;
+	background:#fff;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	cursor:pointer;
+}
+.aw-appointment .nav-tabs li.active{
+	margin-bottom: -1px;
+}
+.aw-appointment .nav-tabs li.active a{
+	border:1px solid #ccc;
+	border-bottom-color:transparent;
+	color:#000;
+	background:#F1F1F1;
+}
+.aw-appointment .tab-content{
+	clear:both;
+	border:1px solid #ccc;
+	padding:1em;
+	background:#F1F1F1;
+	
+}
+.aw-appointment .tab-content .tab-pane{
+	display:none;
+}
+.aw-appointment .tab-content .tab-pane.active{
+	display:block;
+}
+
+.aw-appointment .form-div{
+	border:1px solid #ccc;
+	padding:1em;
+	border-radius:4px;
+	margin:5px 0;
+}
+.aw-appointment .form-table th{
+	font-weight:400;
+}
+.aw-appointment .form-div h2{
+	font-weight:200;
+}
+.aw-appointment .aw-nops{
+	border:1px solid #ccc;
+	min-width:400px;
+}
+.aw-appointment .aw-nops th{
+	border-bottom:1px solid #ccc;
+}
+.aw-appointment .aw-nops td{
+	text-align:center;
+	border-bottom:1px solid #ccc;
+}
+.aw-appointment .aw-nops td{
+	text-align:center;
+	border-bottom:1px solid #ccc;
+}
+.aw-appointment .aw-nops tr td:last-child,
+.aw-appointment .aw-nops tr:last-child td{
+	border-bottom:none;
+}

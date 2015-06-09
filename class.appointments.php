@@ -1,12 +1,28 @@
 <?php
 class Appointments{
-	private function aw_appointments(){
+	private static function aw_appointments(){
 		return [	
 			'ver'=>'0',
-			'timing'=>[],
-			'email'=>'',
+			'timing'=>[
+					'mon'=>[],
+					'tue'=>[],
+					'wed'=>[],
+					'thu'=>[],
+					'fri'=>[],
+					'sat'=>[],
+					'sun'=>[],
+			],
+			'noapp'=>[],
+			'email'=>[
+					'to'=>'',
+					'cc'=>'',
+					'bcc'=>'',
+			],
 	];
 	}
+	
+	private static $noapp = ['f'=>'','t'=>''];
+	
 	public static function init() {
 		add_shortcode('aw-appointments', array('appointments', 'shortcode'));		
 	}
@@ -37,6 +53,7 @@ class Appointments{
 			$aw_appointments = get_option( "aw-appointments" );
 			$aw_appointments=json_decode($aw_appointments, true);
 			if($aw_appointments==NULL) $aw_appointments=self::aw_appointments();
+			
 
 			if( $aw_appointments['ver'] == "0" ) {
 				$aw_appointments['ver']=AW_APPOINTMENT_VERSION;
@@ -55,8 +72,10 @@ class Appointments{
 			elseif($aw_appointments['ver']!=AW_APPOINTMENT_VERSION){
 				/*
 				 * update plugin
+				 * 
 				 */
-				echo "updated";
+				 
+				 
 				$aw_appointments['ver']=AW_APPOINTMENT_VERSION;
 				$aw_appointments=json_encode($aw_appointments);
 				update_option("aw-appointments", $aw_appointments );
