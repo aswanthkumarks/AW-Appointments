@@ -15,7 +15,20 @@ class Appointmentadmin{
 	}
 	public function getSettings(){
 		return self::$settings;
-	}	
+	}
+
+	public function getDayname($day){
+		$dayname=[
+				'mon'=>'Monday',
+				'tue'=>'Tuesday',
+				'wed'=>'Wednesday',
+				'thu'=>'Thursday',
+				'fri'=>'Friday',
+				'sat'=>'Saturday',
+				'sun'=>'Sunday',				
+		];
+		return $dayname[$day];
+	}
 	
 		
 	public static function init_hooks() {
@@ -23,6 +36,7 @@ class Appointmentadmin{
 		add_action( 'admin_init', array( 'appointmentadmin', 'admin_init' ) );
 		add_action( 'admin_menu', array( 'appointmentadmin', 'admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( 'appointmentadmin', 'load_resources' ) );
+		add_action('wp_ajax_aw_update_options', array('appointmentadmin','aw_update_options'));
 	}
 	
 	public static function admin_init() {
@@ -35,7 +49,13 @@ class Appointmentadmin{
 	
 	public static function load_resources(){	
 		wp_register_style( 'aw-appointment-admin', AW_APPOINTMENT_PLUGIN_URL . 'admin/style.css', array(), AW_APPOINTMENT_VERSION );
+		wp_register_style( 'jqueryui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.21/themes/redmond/jquery-ui.css', array(), 1.8 );
 		wp_enqueue_style( 'aw-appointment-admin');
+		wp_enqueue_style( 'jqueryui');
+		
+	
+		wp_register_script( 'ptTimeSelectjs', AW_APPOINTMENT_PLUGIN_URL . 'jquery.ptTimeSelect.js', array('jquery'), 1.0 );
+		wp_enqueue_script( 'ptTimeSelectjs' );
 	}
 	
 	public function checkmydate($date) {
@@ -45,6 +65,51 @@ class Appointmentadmin{
 		} else {
 			return false;
 		}
+	}
+	
+	public static function aw_update_options(){
+		$response = array();
+		$response['resp']="";		
+		if(!empty($_POST['field'])){
+			$opt=json_decode(get_option('aw-appointments'),true);
+			if($_POST['field']=='onoff'){
+				$opt['timing'][$_POST['key']]['s']=$_POST['value'];
+				$response['resp']=true;
+				$response['data']=$opt['timing'][$_POST['key']];
+			}
+			elseif($_POST['field']=='newsch'){
+				$opt['timing'][$_POST['key']]['s']=$_POST['value'];
+				$found=false;
+				foreach($opt['timing'][$_POST['key']]['t'] as $key=>$value){
+					if($value['f']==$_POST['from']&&$value['t']==$_POST['to']){
+						$found=true;
+					}
+				}				
+				if(!$found){
+					array_push($opt['timing'][$_POST['key']]['t'], [
+							'f'=>$_POST['from'],
+							't'=>$_POST['to'],
+							'n'=>$_POST['noa'],
+					]);
+				}
+				$response['resp']=true;
+				$response['data']=$opt['timing'][$_POST['key']];
+			}
+			elseif ($_POST['field']=='deletesch'){
+					unset($opt['timing'][$_POST['day']]['t'][$_POST['key']]);
+					$response['resp']=true;
+					$response['data']=$opt['timing'][$_POST['day']];
+			}	
+			
+			update_option('aw-appointments', json_encode($opt));
+			
+		} else {
+			$response['resp'] = "You didn't send the param";
+		}
+		
+		header( "Content-Type: application/json" );
+		echo json_encode($response);
+		wp_die();
 	}
 		
 	public function saveSettings($vals){		

@@ -4,13 +4,13 @@ class Appointments{
 		return [	
 			'ver'=>'0',
 			'timing'=>[
-					'mon'=>[],
-					'tue'=>[],
-					'wed'=>[],
-					'thu'=>[],
-					'fri'=>[],
-					'sat'=>[],
-					'sun'=>[],
+					'mon'=>['s'=>true,'t'=>[]],
+					'tue'=>['s'=>true,'t'=>[]],
+					'wed'=>['s'=>true,'t'=>[]],
+					'thu'=>['s'=>true,'t'=>[]],
+					'fri'=>['s'=>true,'t'=>[]],
+					'sat'=>['s'=>true,'t'=>[]],
+					'sun'=>['s'=>true,'t'=>[]],
 			],
 			'noapp'=>[],
 			'email'=>[
@@ -74,8 +74,7 @@ class Appointments{
 				 * update plugin
 				 * 
 				 */
-				 
-				 
+				//$aw_appointments=self::aw_appointments();
 				$aw_appointments['ver']=AW_APPOINTMENT_VERSION;
 				$aw_appointments=json_encode($aw_appointments);
 				update_option("aw-appointments", $aw_appointments );
