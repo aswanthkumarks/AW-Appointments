@@ -6,18 +6,22 @@
 foreach($settings['timing'] as $key=>$value){
 	echo "<tr><th>";
 	echo $awobj->getDayname($key);
-	echo "</td><th>";
+	?>
+	</th><td>
+	<a href="#" class="dashicons dashicons-admin-post toggleaw"></a>
+	<div class="aw-tslots">
+	<?php
 	foreach($value['t'] as $tkey=>$times){
 		echo '<div class="aw-time"><span rel="'.$tkey.'" aw-week="'.$key.'" alt="X" class="aw-remove dashicons dashicons-dismiss"></span><label>'.$times['f'].'</label><label>'.$times['t'].'</label><label>'.$times['n'].'</label></div>';		
 	}
+	echo '</div>';
 	?>
 		<div class="settime">
 		<div class="timemsg"></div>
 		<table><tr><td>From <br/><input type='text' class='timefrom timeinput' rel='time'/></td>
 		<td>To <br/><input type='text' class='timeto timeinput' rel='time'/></td></tr></table>
-		<i>No of slots</i><br/>
-		<input class="nos" type="number" min='1' value="10" placeholder="No slots" /><br/>
-		
+		<i>No of slots</i>
+		<input class="nos" type="number" min='1' value="10" placeholder="No slots" />
 		<input type='button' rel="<?php echo $key; ?>" class='scheduletime' value="Set time"/>		
 		</div>
 	

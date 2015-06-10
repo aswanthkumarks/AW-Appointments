@@ -4,13 +4,13 @@ class Appointments{
 		return [	
 			'ver'=>'0',
 			'timing'=>[
-					'mon'=>['s'=>true,'t'=>[]],
-					'tue'=>['s'=>true,'t'=>[]],
-					'wed'=>['s'=>true,'t'=>[]],
-					'thu'=>['s'=>true,'t'=>[]],
-					'fri'=>['s'=>true,'t'=>[]],
-					'sat'=>['s'=>true,'t'=>[]],
-					'sun'=>['s'=>true,'t'=>[]],
+					'mon'=>['s'=>0,'t'=>[]],
+					'tue'=>['s'=>0,'t'=>[]],
+					'wed'=>['s'=>0,'t'=>[]],
+					'thu'=>['s'=>0,'t'=>[]],
+					'fri'=>['s'=>0,'t'=>[]],
+					'sat'=>['s'=>0,'t'=>[]],
+					'sun'=>['s'=>0,'t'=>[]],
 			],
 			'noapp'=>[],
 			'email'=>[

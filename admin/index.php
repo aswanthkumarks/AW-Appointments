@@ -15,16 +15,16 @@ $settings=$awobj->getSettings();
 
 
 <ul class="nav-tabs" role="tablist" id="aw-appointment-tab">
-  <li role="presentation" class="active"><a href="#aw-applist" class="dashicons-before dashicons-backup" aria-controls="home" role="tab" data-toggle="tab">Appointments</a></li>
-  <li role="presentation"><a href="#aw-schedule" aria-controls="schedule" role="tab" data-toggle="tab">General Schedule</a></li>
+  <li role="presentation"><a href="#aw-applist" class="dashicons-before dashicons-backup" aria-controls="home" role="tab" data-toggle="tab">Appointments</a></li>
+  <li role="presentation"  class="active"><a href="#aw-schedule" aria-controls="schedule" role="tab" data-toggle="tab">General Schedule</a></li>
   <li role="presentation"><a href="#aw-settings" class="dashicons-before dashicons-admin-generic" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
 </ul>
 
 <div class="tab-content">
-  <div role="tabpanel" class="tab-pane active" id="aw-applist">
+  <div role="tabpanel" class="tab-pane" id="aw-applist">
   	<?php require_once 'tab.appointments.php';?>  
   </div>
-  <div role="tabpanel" class="tab-pane" id="aw-schedule">
+  <div role="tabpanel" class="tab-pane active" id="aw-schedule">
   	<?php require_once 'tab.schedule.php';?>
   </div>
   <div role="tabpanel" class="tab-pane" id="aw-settings">
@@ -46,6 +46,16 @@ $settings=$awobj->getSettings();
 
 <script>
 (function($){
+	$('.toggleaw').click(function(){
+		if($(this).parent().find('.settime').css('display')=='none'){
+			$(this).parent().find('.settime').css('display','inline-block');
+			}
+		else{
+			$(this).parent().find('.settime').css('display','none');
+			}
+
+
+		});
 
 	h=$('.aw-appointment .panel-body').height();
 	$('.aw-appointment .aw-cover-panel').css('height',h+'px');
