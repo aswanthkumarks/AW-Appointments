@@ -10,7 +10,7 @@ if ( !function_exists( 'add_action' ) ) {
 	echo 'Hi there!  I\'m just a plugin, not much I can do when called directly.';
 	exit;
 }
-define( 'AW_APPOINTMENT_VERSION', '0.4' );
+define( 'AW_APPOINTMENT_VERSION', '0.2' );
 define( 'AW_APPOINTMENT_MINIMUM_WP_VERSION', '3.1' );
 define( 'AW_APPOINTMENT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'AW_APPOINTMENT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );

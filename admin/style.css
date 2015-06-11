@@ -141,7 +141,24 @@ input.cmn-toggle-round:checked + label:after {
 .aw-appointment{
 	padding:3px 5px;			
 }
+.aw-appointment textarea, .aw-appointment input, .aw-appointment a,
+.aw-appointment textarea:active, .aw-appointment input:active, .aw-appointment a:active,
+.aw-appointment textarea:focus, .aw-appointment input:focus, .aw-appointment a:focus
+ { 
+	outline: none;
+	box-shadow:none;
+}
 
+.aw-appointment .timemsg.aw-shown{
+	padding:4px;
+	box-shadow:0 0 3px #1291D3;
+	border-radius:4px;
+	line-height:20px;
+	background-color:#7AC4DA;
+	color:#fff;
+	letter-spacing:1px;
+	
+}
 .aw-appointment .panel {
   margin-bottom: 20px;
   background-color: #fff;
@@ -270,7 +287,14 @@ input.cmn-toggle-round:checked + label:after {
 	margin:0;
 }
 .aw-appointment .aw-schedule th{
-	line-height:5em;
+	line-height:7em;
+}
+.aw-appointment .aw-schedule > tbody > tr:first-child{
+	background:#0074A2;
+	color:#fff;
+}
+.aw-appointment .aw-schedule tr:first-child th{
+	line-height:1em;
 }
 .aw-appointment .aw-schedule td{
 	vertical-align:top;
@@ -306,7 +330,7 @@ input.cmn-toggle-round:checked + label:after {
 	box-shadow:0 0 3px #333;
 	background:#175E1F;
 	color:#fff;
-	line-height: 24px;
+	line-height: 12px;
 }
 .aw-appointment .settime input{
 	line-height:14px;
@@ -363,7 +387,7 @@ input.cmn-toggle-round:checked + label:after {
 
 .aw-appointment .aw-time label{
 	display:block;
-	padding:7px 15px;
+	padding:3px 15px;
 	background-color:#8CE196;
 	color:#fff;
 	line-height:20px;
@@ -393,6 +417,10 @@ input.cmn-toggle-round:checked + label:after {
 	color:#FFBA00;
 }
 .aw-appointment .aw-tslots{
+	display:inline-block;
+	float:left;
+}
+.aw-inline{
 	display:inline-block;
 	float:left;
 }

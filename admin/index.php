@@ -49,13 +49,16 @@ $settings=$awobj->getSettings();
 	$('.toggleaw').click(function(){
 		if($(this).parent().find('.settime').css('display')=='none'){
 			$(this).parent().find('.settime').css('display','inline-block');
+			$(this).removeClass('dashicons-plus');
+			$(this).addClass('dashicons-minus');
 			}
 		else{
 			$(this).parent().find('.settime').css('display','none');
+			$(this).removeClass('dashicons-minus');
+			$(this).addClass('dashicons-plus');
 			}
-
-
-		});
+		return false;
+	});
 
 	h=$('.aw-appointment .panel-body').height();
 	$('.aw-appointment .aw-cover-panel').css('height',h+'px');
@@ -66,7 +69,8 @@ $settings=$awobj->getSettings();
 		var obj=$(this).attr('href');
 		$('.active').removeClass('active');
 		$(this).parent().addClass('active');
-		$(obj).addClass('active');		
+		$(obj).addClass('active');
+		return false;
 	});
 	$('.cmn-toggle').change(function(){
 		status=1;
@@ -74,9 +78,7 @@ $settings=$awobj->getSettings();
 		if(!$(this).attr('checked')){
 			status=0;		
 		}
-		ph=$('.aw-appointment .tab-pane.active').height();
-		var awcover=$('<div class="aw-cover-panel" style="height:'+ph+'px"><img src="<?php echo AW_APPOINTMENT_PLUGIN_URL;?>loading.gif"/></div>');
-		$('.aw-appointment .tab-pane.active').append(awcover);
+		var awcover=aw_show_loading();
 		var data={ action: 'aw_update_options' , field: 'onoff', key: skey,value: status };
 		
 		jQuery.post(ajaxurl, data, function(response) {
@@ -91,9 +93,7 @@ $settings=$awobj->getSettings();
 		var day=$(this).attr('aw-week');
 		var rkey=$(this).attr('rel');
 		var td=$(this).closest('td');
-		ph=$('.aw-appointment .tab-pane.active').height();		
-		var awcover=$('<div class="aw-cover-panel" style="height:'+ph+'px"><img src="<?php echo AW_APPOINTMENT_PLUGIN_URL;?>loading.gif"/></div>');		
-		$('.aw-appointment .tab-pane.active').append(awcover);		
+		var awcover=aw_show_loading();	
 		var data={ action: 'aw_update_options' , field: 'deletesch', day: day, key: rkey };		
 		$.post(ajaxurl, data, function(response) {
 			if(response.resp) populateschedule(td,response.data);
@@ -103,6 +103,25 @@ $settings=$awobj->getSettings();
 		
 		});
 
+	$(document).on('click','.removedisabled',function(){
+		var key=$(this).attr('data-key');
+		var obj=$(this);
+		var awcover=aw_show_loading();	
+		var data={ action: 'aw_update_options' , field: 'removedisabled', key: key};	
+		$.post(ajaxurl, data, function(response) {
+			if(response.resp){
+				aw_show_msg(obj.closest('.wrap'),"Settings updated successfully");
+				console.log(response);
+				populatedisabled(response.data);			
+			}
+		}).fail(function(response) {
+			 
+		  }).always(function() {
+			awcover.remove();
+		});
+		return false;
+		
+		});
 	$('.scheduletime').click(function(){
 		var obj=$(this).parent('.settime');
 		var ft=obj.find('.timefrom').val();
@@ -112,13 +131,12 @@ $settings=$awobj->getSettings();
 		var td=$(this).closest('.settime').closest('td');
 		
 		if(validatetime(ft) && validatetime(tt)){
-			ph=$('.aw-appointment .tab-pane.active').height();	
-			var awcover=$('<div class="aw-cover-panel" style="height:'+ph+'px"><img src="<?php echo AW_APPOINTMENT_PLUGIN_URL;?>loading.gif"/></div>');			
-			$('.aw-appointment .tab-pane.active').append(awcover);			
+			var awcover=aw_show_loading();
+					
 			var skey= $(this).attr('rel');
 			if(nos==''||Number(nos)<1) nos=5;		
 			var data={ action: 'aw_update_options' , field: 'newsch', key: skey, from: ft, to: tt , noa: nos };	
-			console.log(data);		
+					
 			$.post(ajaxurl, data, function(response) {
 				console.log(response);
 				if(response.resp) populateschedule(td,response.data);
@@ -135,11 +153,99 @@ $settings=$awobj->getSettings();
 
 	});
 
+$("#aw-settings1").click(function(){
+	var eto=$('#eto').val();
+	var ecc=$('#ecc').val();
+	var ebcc=$('#ebcc').val();
+	var obj=$(this);
+	if(aw_validateemail(eto)&&aw_validateemail(ecc)&&aw_validateemail(ebcc)){
 
+		var awcover=aw_show_loading();
+		
+		var data={ action: 'aw_update_options' , field: 'alertdetails', to: eto, cc: ecc, bcc: ebcc, prmax: $('#eprimax').val(), prmin: $('#eprimin').val() };	
+		$.post(ajaxurl, data, function(response) {
+			if(response.resp){
+				aw_show_msg(obj.closest('.wrap'),"Settings updated successfully");
+			}
+		}).fail(function(response) {
+			 
+		  }).always(function() {
+			awcover.remove();
+		});
+		
+	}
+	else aw_show_msg(obj.closest('.wrap'),"Invalid Emails");
+	
+});
+
+function populatedisabled(data){
+	$("#aw-disableditems tbody").html('');
+	$("#aw-disableditems tbody").append($('<tr><th>From Date</th><th>To date</th><th></th></tr>'));
+	$.each(data,function(k,d){
+		$("#aw-disableditems tbody").append($('<tr><td>'+d.f+'</td><td>'+d.t+'</td><td><a data-key="'+k+'" class="removedisabled dashicons dashicons-dismiss" href="#"></a></td></tr>'));
+	});
+}
+
+function aw_show_loading(){
+	ph=$('.aw-appointment .tab-pane.active').height();	
+	var awcover=$('<div class="aw-cover-panel" style="height:'+ph+'px"><img src="<?php echo AW_APPOINTMENT_PLUGIN_URL;?>loading.gif"/></div>');			
+	$('.aw-appointment .tab-pane.active').append(awcover);
+	return awcover;
+}
+function aw_show_msg(obj,msg){
+	$('.aw-appointment .timemsg').html("");
+	$('.aw-appointment .timemsg').removeClass("aw-shown");
+	var msgbox=obj.find('.timemsg');
+	msgbox.addClass("aw-shown");
+	msgbox.html(msg);
+}
+
+$("#aw-settings2").click(function(){
+	var dt=$('#aw-datet').val();
+	var df=$('#aw-datef').val();
+	var obj=$(this);
+
+	if(aw_validatedate(dt)&&aw_validatedate(df)){
+		
+		var awcover=aw_show_loading();
+		var data={ action: 'aw_update_options' , field: 'disabledetails', f: df, t: dt };
+		console.log(data);	
+		$.post(ajaxurl, data, function(response) {
+			if(response.resp){
+				aw_show_msg(obj.closest('.wrap'),response.msg);
+				populatedisabled(response.data);		
+			}
+		}).fail(function(response) {
+			
+		  }).always(function() {
+			awcover.remove();
+		});
+		
+	}
+	else aw_show_msg(obj.closest('.wrap'),"Invalid Dates");
+	
+});
 	
 	
 	
 })(jQuery);
+
+function aw_validatedate(dt){
+	console.log(dt);
+	return true;
+}
+function aw_validateemail(email){
+	if(email!=""){
+	var emails=email.split(',');
+	var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+	var validstatus=true;
+	jQuery.each(emails,function(k,e){
+		if(!regex.test(e)) validstatus=false;
+	});
+	return validstatus;	
+	}
+	else return true;
+}
 
 function populateschedule(obj,data){
 	var wday=obj.find('.scheduletime').attr('rel');

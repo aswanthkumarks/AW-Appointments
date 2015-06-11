@@ -58,7 +58,7 @@ class Appointmentadmin{
 		wp_enqueue_script( 'ptTimeSelectjs' );
 	}
 	
-	public function checkmydate($date) {
+	public static function checkmydate($date) {
 		$tempDate = explode('-', $date);
 		if (checkdate($tempDate[1], $tempDate[2], $tempDate[0])) {
 			return true;
@@ -100,6 +100,66 @@ class Appointmentadmin{
 					if(count($opt['timing'][$_POST['day']]['t'])==0) $opt['timing'][$_POST['day']]['s']=0;
 					$response['resp']=true;
 					$response['data']=$opt['timing'][$_POST['day']];
+			}
+			elseif($_POST['field']=="alertdetails"){
+				$opt['email']['to']=$_POST['to'];
+				$opt['email']['cc']=$_POST['cc'];
+				$opt['email']['bcc']=$_POST['bcc'];
+				
+				$opt['px']=$_POST['prmax'];
+				$opt['pm']=$_POST['prmin'];
+				
+				if($opt['px']<1) $opt['px']=1;
+				if($opt['pm']<0) $opt['pm']=0;
+				
+				$response['resp']=true;
+			}
+			elseif($_POST['field']=="disabledetails"){
+				if(self::checkmydate($_POST['f']) && self::checkmydate($_POST['t'])) {
+					$fd=$_POST['f'];
+					$td=$_POST['t'];
+					
+					if(strtotime($fd)>strtotime($td)){
+						$temp=$fd;
+						$fd=$td;
+						$td=$temp;
+					}
+					
+					$notfount=true;
+					foreach ($opt['noapp'] as $dt){
+						if($dt['f']==$fd&&$dt['t']==$td){
+							$notfount=false;
+						}
+					}
+					if($notfount){
+						if(count($opt['noapp'])<10){
+							array_push($opt['noapp'],['f'=>$fd,'t'=>$td]);
+							$response['msg']="Disable date updated successfully";
+						}
+						else{
+							$response['msg']="Limit exceeded, you can have maximum of 10 disabled date range";							
+						}
+					}
+					else{
+						$response['msg']="This data is already present";
+					}
+					
+				}
+				else{
+					$response['msg']="Invalid Date ".fd.' - '. $td;
+				}
+				
+				$response['resp']=true;
+				$response['data']=$opt['noapp'];
+				
+			}
+			elseif($_POST['field']=="removedisabled"){
+				foreach ($opt['noapp'] as $key=>$value){
+					if($key==$_POST['key']) unset($opt['noapp'][$key]);
+				}
+				$response['resp']=true;
+				$response['data']=$opt['noapp'];
+				
 			}			
 			update_option('aw-appointments', json_encode($opt));
 			

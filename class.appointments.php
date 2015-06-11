@@ -3,6 +3,8 @@ class Appointments{
 	private static function aw_appointments(){
 		return [	
 			'ver'=>'0',
+			'pm'=>'1',
+			'px'=>'7',
 			'timing'=>[
 					'mon'=>['s'=>0,'t'=>[]],
 					'tue'=>['s'=>0,'t'=>[]],
@@ -74,7 +76,7 @@ class Appointments{
 				 * update plugin
 				 * 
 				 */
-				//$aw_appointments=self::aw_appointments();
+				$aw_appointments=self::aw_appointments();
 				$aw_appointments['ver']=AW_APPOINTMENT_VERSION;
 				$aw_appointments=json_encode($aw_appointments);
 				update_option("aw-appointments", $aw_appointments );
