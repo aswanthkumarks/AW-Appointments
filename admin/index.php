@@ -87,48 +87,46 @@ $settings=$awobj->getSettings();
 		
 	});
 
-	$('.aw-remove').click(function(){
+	$(document).on('click','.aw-remove',function(){
 		var day=$(this).attr('aw-week');
 		var rkey=$(this).attr('rel');
+		var td=$(this).closest('td');
 		ph=$('.aw-appointment .tab-pane.active').height();		
 		var awcover=$('<div class="aw-cover-panel" style="height:'+ph+'px"><img src="<?php echo AW_APPOINTMENT_PLUGIN_URL;?>loading.gif"/></div>');		
 		$('.aw-appointment .tab-pane.active').append(awcover);		
-				
 		var data={ action: 'aw_update_options' , field: 'deletesch', day: day, key: rkey };		
-		jQuery.post(ajaxurl, data, function(response) {
-		     console.log (response);
+		$.post(ajaxurl, data, function(response) {
+			if(response.resp) populateschedule(td,response.data);
 		}).always(function() {
 			awcover.remove();
 		});
-
-
-	});
+		
+		});
 
 	$('.scheduletime').click(function(){
 		var obj=$(this).parent('.settime');
 		var ft=obj.find('.timefrom').val();
 		var tt=obj.find('.timeto').val();
+		var nos=obj.find('.nos').val();
 
+		var td=$(this).closest('.settime').closest('td');
+		
 		if(validatetime(ft) && validatetime(tt)){
-
-			ph=$('.aw-appointment .tab-pane.active').height();
-	
-			var awcover=$('<div class="aw-cover-panel" style="height:'+ph+'px"><img src="<?php echo AW_APPOINTMENT_PLUGIN_URL;?>loading.gif"/></div>');
-			
-			$('.aw-appointment .tab-pane.active').append(awcover);
-			
+			ph=$('.aw-appointment .tab-pane.active').height();	
+			var awcover=$('<div class="aw-cover-panel" style="height:'+ph+'px"><img src="<?php echo AW_APPOINTMENT_PLUGIN_URL;?>loading.gif"/></div>');			
+			$('.aw-appointment .tab-pane.active').append(awcover);			
 			var skey= $(this).attr('rel');
-			
-			var data={ action: 'aw_update_options' , field: 'newsch', key: skey, from: ft, to: tt , noa: '10' };
-			
-			jQuery.post(ajaxurl, data, function(response) {
-			     console.log (response);
-			}).always(function() {
+			if(nos==''||Number(nos)<1) nos=5;		
+			var data={ action: 'aw_update_options' , field: 'newsch', key: skey, from: ft, to: tt , noa: nos };	
+			console.log(data);		
+			$.post(ajaxurl, data, function(response) {
+				console.log(response);
+				if(response.resp) populateschedule(td,response.data);
+			}).fail(function(response) {
+				 
+			  }).always(function() {
 				awcover.remove();
-			});
-
-			
-			
+			});	
 		}
 		else{
 			$('.timemsg').html('');
@@ -137,9 +135,24 @@ $settings=$awobj->getSettings();
 
 	});
 
+
+	
 	
 	
 })(jQuery);
+
+function populateschedule(obj,data){
+	var wday=obj.find('.scheduletime').attr('rel');
+	var awtime="";
+	obj=obj.find('.aw-tslots');
+	obj.find('.aw-time').remove();	
+	if(data.s==1) obj.closest('tr').find('.cmn-toggle').attr('checked','checked');
+	else obj.closest('tr').find('.cmn-toggle').removeAttr('checked');	
+	jQuery.each(data.t, function(i, item) {
+		awtime=jQuery('<div class="aw-time"><span rel="'+i+'" aw-week="'+wday+'" alt="X" class="aw-remove dashicons dashicons-dismiss"></span><label>'+item.f+'</label><label>'+item.t+'</label><label>'+item.n+'</label></div>');
+		obj.append(awtime);
+	});	
+}
 
 function validatetime(time){
 	if(time=="") return false;

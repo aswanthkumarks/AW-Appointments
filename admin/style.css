@@ -286,6 +286,15 @@ input.cmn-toggle-round:checked + label:after {
 	margin:-13px -13px 0 10px;
 	box-shadow:0 0 3px #333;
 	font-size:12px;
+	height:11px;
+	width:11px;
+	width:auto;
+}
+.aw-appointment .toggleaw:active{
+	background:#8CE196;
+	color:#fff;
+	position:relative;
+	top:-1px;
 }
 
 .aw-appointment .settime{
@@ -294,6 +303,14 @@ input.cmn-toggle-round:checked + label:after {
 	line-height:13px;
 	display:none;
 	text-align:center;
+	box-shadow:0 0 3px #333;
+	background:#175E1F;
+	color:#fff;
+	line-height: 24px;
+}
+.aw-appointment .settime input{
+	line-height:14px;
+	padding:2px;
 }
 .aw-appointment .settime td{
 	border:none;
@@ -310,9 +327,24 @@ input.cmn-toggle-round:checked + label:after {
 	display:block;
 	text-align:left;
 }
-.aw-appointment .scheduletime{
+.aw-appointment .settime .scheduletime{
 	padding:2px 8px;
 	cursor:pointer;
+	background:#fff;
+	box-shadow:0 0 3px #333 inset;
+	border:none;
+	line-height:22px;
+}
+
+.aw-appointment .settime .scheduletime:hover{
+	background:#e5734e;
+	color:#fff;
+}
+.aw-appointment .settime .scheduletime:active{
+	position:relative;
+	top:-1px;
+	background:#d54e21;
+	color:#fff;
 }
 .aw-appointment .aw-cover-panel{
 	position:absolute;
@@ -362,4 +394,5 @@ input.cmn-toggle-round:checked + label:after {
 }
 .aw-appointment .aw-tslots{
 	display:inline-block;
+	float:left;
 }

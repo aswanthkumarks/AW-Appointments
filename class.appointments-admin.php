@@ -78,7 +78,7 @@ class Appointmentadmin{
 				$response['data']=$opt['timing'][$_POST['key']];
 			}
 			elseif($_POST['field']=='newsch'){
-				$opt['timing'][$_POST['key']]['s']=$_POST['value'];
+				$opt['timing'][$_POST['key']]['s']=1;
 				$found=false;
 				foreach($opt['timing'][$_POST['key']]['t'] as $key=>$value){
 					if($value['f']==$_POST['from']&&$value['t']==$_POST['to']){
@@ -97,10 +97,10 @@ class Appointmentadmin{
 			}
 			elseif ($_POST['field']=='deletesch'){
 					unset($opt['timing'][$_POST['day']]['t'][$_POST['key']]);
+					if(count($opt['timing'][$_POST['day']]['t'])==0) $opt['timing'][$_POST['day']]['s']=0;
 					$response['resp']=true;
 					$response['data']=$opt['timing'][$_POST['day']];
-			}	
-			
+			}			
 			update_option('aw-appointments', json_encode($opt));
 			
 		} else {

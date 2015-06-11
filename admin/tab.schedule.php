@@ -1,21 +1,21 @@
 
 <table class="aw-schedule">
 <tbody>
-<tr><th>Day</th><th>Schedule</th><th>On or Off Day</th></tr>
+<tr><th>Day</th><th style="min-width:300px;">Schedule</th><th>On or Off Day</th></tr>
 <?php
 foreach($settings['timing'] as $key=>$value){
 	echo "<tr><th>";
 	echo $awobj->getDayname($key);
 	?>
 	</th><td>
-	<a href="#" class="dashicons dashicons-admin-post toggleaw"></a>
+	<a href="#" class="dashicons dashicons-plus toggleaw"></a>
 	<div class="aw-tslots">
 	<?php
 	foreach($value['t'] as $tkey=>$times){
 		echo '<div class="aw-time"><span rel="'.$tkey.'" aw-week="'.$key.'" alt="X" class="aw-remove dashicons dashicons-dismiss"></span><label>'.$times['f'].'</label><label>'.$times['t'].'</label><label>'.$times['n'].'</label></div>';		
 	}
-	echo '</div>';
 	?>
+	</div>
 		<div class="settime">
 		<div class="timemsg"></div>
 		<table><tr><td>From <br/><input type='text' class='timefrom timeinput' rel='time'/></td>
