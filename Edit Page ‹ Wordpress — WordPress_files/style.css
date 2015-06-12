@@ -1,0 +1,426 @@
+@CHARSET "UTF-8";
+
+
+#ptTimeSelectCntr {
+	width: 250px; 
+	font-size: .9em;
+	position: absolute;
+	z-index: 10;
+	display: none;
+}
+#ptTimeSelectCntr .ui-widget{
+	padding: .2em;
+}
+#ptTimeSelectCntr .ui-widget-header {
+	padding: .2em;
+}
+#ptTimeSelectCntr #ptTimeSelectUserTime {
+	font-size: larger;
+	padding: .2em;
+	padding-left: 1em;
+	text-align: center;
+}
+#ptTimeSelectCntr #ptTimeSelectCloseCntr {
+	display: block;
+	padding: .2em;
+}
+#ptTimeSelectCntr #ptTimeSelectCloseCntr a {
+	display: block;
+	padding: .2em;
+}
+#ptTimeSelectCntr .ui-widget-content {
+	 margin-top: .1em;
+	 margin-bottom: .1em; 
+	 padding: .2em;	
+}
+#ptTimeSelectCntr .ui-widget.ui-widget-content {
+	margin-top: 0;
+}
+#ptTimeSelectCntr .ptTimeSelectLeftPane.ui-widget-content {
+	border-top:none;
+	border-bottom:none;
+	border-left:none;
+	border-right-width: 2px;
+}
+#ptTimeSelectCntr .ptTimeSelectRightPane.ui-widget-content {
+	border: none;
+}
+#ptTimeSelectCntr .ptTimeSelectHrCntr a,
+#ptTimeSelectCntr .ptTimeSelectMinCntr a {
+	display: block;
+	float: left;
+	padding: .2em;
+	width: 1.9em;
+	margin: 1px;
+	text-align: center;
+	text-decoration: none;
+}
+#ptTimeSelectCntr .ptTimeSelectHrAmPmCntr a {
+	text-align: center;
+	margin: 1px;
+}
+#ptTimeSelectCntr .ptTimeSelectTimeLabelsCntr {
+	font-weight: bold;
+	font-size: .9em;
+}
+#ptTimeSelectCntr #ptTimeSelectSetButton {
+	padding-top: .2em;
+	padding-bottom: .2em;
+}
+#ptTimeSelectCntr #ptTimeSelectSetButton a {
+ 	display: block;
+	padding: .2em;
+	width: 30%;
+	text-align: center;
+	float: right;
+}
+
+
+
+/* ============================================================
+  SWITCH 1 - ROUND
+============================================================ */
+
+.cmn-toggle {
+  position: absolute;
+  margin-left: -9999px;
+  visibility: hidden;
+}
+.cmn-toggle + label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+input.cmn-toggle-round + label {
+  padding: 2px;
+  width: 60px;
+  height: 30px;
+  background-color: #dddddd;
+  border-radius: 30px;
+  margin:0 auto;
+}
+input.cmn-toggle-round + label:before,
+input.cmn-toggle-round + label:after {
+  display: block;
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  bottom: 1px;
+  content: "";
+}
+input.cmn-toggle-round + label:before {
+  right: 1px;
+  background-color: #f1f1f1;
+  border-radius: 30px;
+  transition: background 0.4s;
+}
+input.cmn-toggle-round + label:after {
+  width: 35px;
+  background-color: #fff;
+  border-radius: 100%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: margin 0.4s;
+}
+input.cmn-toggle-round:checked + label:before {
+  background-color: #8ce196;
+}
+input.cmn-toggle-round:checked + label:after {
+  margin-left: 30px;
+}
+
+
+/* Plugin Css */
+
+
+
+.aw-appointment{
+	padding:3px 5px;			
+}
+.aw-appointment textarea, .aw-appointment input, .aw-appointment a,
+.aw-appointment textarea:active, .aw-appointment input:active, .aw-appointment a:active,
+.aw-appointment textarea:focus, .aw-appointment input:focus, .aw-appointment a:focus
+ { 
+	outline: none;
+	box-shadow:none;
+}
+
+.aw-appointment .timemsg.aw-shown{
+	padding:4px;
+	box-shadow:0 0 3px #1291D3;
+	border-radius:4px;
+	line-height:20px;
+	background-color:#7AC4DA;
+	color:#fff;
+	letter-spacing:1px;
+	
+}
+.aw-appointment .panel {
+  margin-bottom: 20px;
+  background-color: #fff;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+          box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+}
+.aw-appointment .panel-body {
+  padding: 15px;
+}
+.aw-appointment .panel-heading {
+  padding: 10px 15px;
+  border-bottom: 1px solid transparent;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+.aw-appointment .panel-default {
+  border-color: #ddd;
+}
+.aw-appointment .panel-default > .panel-heading {
+  color: #333;
+  background-color: #f5f5f5;
+  border-color: #ddd;
+}
+.aw-appointment .panel-default > .panel-heading + .panel-collapse > .panel-body {
+  border-top-color: #ddd;
+}
+.aw-appointment .panel-default > .panel-heading .badge {
+  color: #f5f5f5;
+  background-color: #333;
+}
+.aw-appointment .panel-default > .panel-footer + .panel-collapse > .panel-body {
+  border-bottom-color: #ddd;
+}
+
+.aw-appointment .nav-tabs{
+	list-style:none;
+	margin:0;
+	padding:0;
+}
+.aw-appointment .nav-tabs li{
+	float:left;	
+	margin:0;
+}
+.aw-appointment .nav-tabs li a{
+	display:inline-block;
+	padding:10px 15px;
+	color:#0074A2;
+	line-height:1.5;
+	font-size:14px;
+	text-decoration:none;
+	background:#fff;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	cursor:pointer;
+}
+.aw-appointment .nav-tabs li.active{
+	margin-bottom: -1px;
+}
+.aw-appointment .nav-tabs li.active a{
+	border:1px solid #ccc;
+	border-bottom-color:transparent;
+	color:#000;
+	background:#F1F1F1;
+}
+.aw-appointment .tab-content{
+	clear:both;
+	border:1px solid #ccc;
+	padding:1em;
+	background:#F1F1F1;
+	
+}
+.aw-appointment .tab-content .tab-pane{
+	display:none;
+	position:relative;
+}
+.aw-appointment .tab-content .tab-pane.active{
+	display:block;
+}
+
+.aw-appointment .form-div{
+	border:1px solid #ccc;
+	padding:1em;
+	border-radius:4px;
+	margin:5px 0;
+}
+.aw-appointment .form-table th{
+	font-weight:400;
+}
+.aw-appointment .form-div h2{
+	font-weight:200;
+}
+.aw-appointment .aw-nops{
+	border:1px solid #ccc;
+	min-width:400px;
+}
+.aw-appointment .aw-nops th{
+	border-bottom:1px solid #ccc;
+}
+.aw-appointment .aw-nops td{
+	text-align:center;
+	border-bottom:1px solid #ccc;
+}
+.aw-appointment .aw-nops td{
+	text-align:center;
+	border-bottom:1px solid #ccc;
+}
+.aw-appointment .aw-nops tr td:last-child,
+.aw-appointment .aw-nops tr:last-child td{
+	border-bottom:none;
+}
+
+.aw-appointment .aw-time{
+	float:left;
+}
+.aw-appointment .aw-schedule{
+	margin:1em;
+	background-color:#fff;
+	border:1px solid #ccc;
+	border-collapse: collapse;
+}
+.aw-appointment .aw-schedule tr{
+	padding:0;
+	margin:0;
+}
+.aw-appointment .aw-schedule th{
+	line-height:7em;
+}
+.aw-appointment .aw-schedule > tbody > tr:first-child{
+	background:#0074A2;
+	color:#fff;
+}
+.aw-appointment .aw-schedule tr:first-child th{
+	line-height:1em;
+}
+.aw-appointment .aw-schedule td{
+	vertical-align:top;
+}
+.aw-appointment .aw-schedule th,.aw-appointment .aw-schedule td{
+	border:1px solid #ccc;
+	margin:0;
+	padding:1em;
+	
+}
+.aw-appointment .toggleaw{
+	float:right;
+	margin:-13px -13px 0 10px;
+	box-shadow:0 0 3px #333;
+	font-size:12px;
+	height:11px;
+	width:11px;
+	width:auto;
+}
+.aw-appointment .toggleaw:active{
+	background:#8CE196;
+	color:#fff;
+	position:relative;
+	top:-1px;
+}
+
+.aw-appointment .settime{
+	border:1px solid #ccc;
+	padding:3px;
+	line-height:13px;
+	display:none;
+	text-align:center;
+	box-shadow:0 0 3px #333;
+	background:#175E1F;
+	color:#fff;
+	line-height: 12px;
+}
+.aw-appointment .settime input{
+	line-height:14px;
+	padding:2px;
+}
+.aw-appointment .settime td{
+	border:none;
+	padding:0;
+}
+.aw-appointment .timeinput{
+	width:78px;
+}
+.aw-appointment .nos{
+	width:84px;
+	text-align:center;
+}
+.aw-appointment .settime i{
+	display:block;
+	text-align:left;
+}
+.aw-appointment .settime .scheduletime{
+	padding:2px 8px;
+	cursor:pointer;
+	background:#fff;
+	box-shadow:0 0 3px #333 inset;
+	border:none;
+	line-height:22px;
+}
+
+.aw-appointment .settime .scheduletime:hover{
+	background:#e5734e;
+	color:#fff;
+}
+.aw-appointment .settime .scheduletime:active{
+	position:relative;
+	top:-1px;
+	background:#d54e21;
+	color:#fff;
+}
+.aw-appointment .aw-cover-panel{
+	position:absolute;
+	left:0;
+	top:0;
+	z-index:9999;
+	background:rgba(255,255,255,0.8);
+	width:100%;
+}
+.aw-appointment .aw-cover-panel img{
+	margin:auto;
+	padding:3px;
+	height:10px;
+	width:100%;
+}
+
+.aw-appointment .aw-time label{
+	display:block;
+	padding:3px 15px;
+	background-color:#8CE196;
+	color:#fff;
+	line-height:20px;
+	margin:3px 2px;
+	text-align:center;
+}
+.aw-appointment .aw-time{
+	display:inline-block;
+	border:1px solid #ccc;
+	margin:0 3px;
+	position:relative;
+	box-shadow:0px 0px 4px 0px #8CE196;
+}
+.aw-appointment .aw-time label{
+	cursor:default;
+}
+.aw-appointment .aw-time span{
+	float:right;
+	position:absolute;
+	top:-6px;
+	left:-10px;
+	line-height:15px;
+	font-size:15px;
+	cursor:pointer;
+}
+.aw-appointment .timemsg{
+	color:#FFBA00;
+}
+.aw-appointment .aw-tslots{
+	display:inline-block;
+	float:left;
+}
+.aw-inline{
+	display:inline-block;
+	float:left;
+}
