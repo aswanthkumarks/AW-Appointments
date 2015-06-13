@@ -25,6 +25,14 @@
 <input type="text" class="aw-city aw-input" placeholder="City" name="aw-city"/>
 <input type="text" class="aw-country aw-input" placeholder="Country" name="aw-country"/>
 </div>
+<div class="captcha">
+<?php $aw_rand='aw-'.rand(0,999); ?>
+	<input type="hidden" class="aw-captchavar" name="aw-var" value="<?php echo $aw_rand; ?>"/>
+	<input type="text" class="aw-captcha aw-input" placeholder="Captcha" name="aw-captcha"/>
+	<img class="aw-captchaimg" src="<?php echo AW_APPOINTMENT_PLUGIN_URL.'captcha.php?var='.$aw_rand; ?>"/>
+	<img class="aw-refresh" src="<?php echo AW_APPOINTMENT_PLUGIN_URL; ?>refresh.png"/>
+</div>
+<div class="aw-msg"></div>
 <div class="aw-submit"><button type="button" class="aw-button aw-btn-active">Submit</button></div>
 </form>
 </div>
@@ -40,6 +48,24 @@ margin:5px 0;
 }
 .aw-appointment .aw-submit{
 text-align:center;
+margin:5px 0;
+}
+.aw-appointment .captcha{
+	text-align:center;
+}
+.aw-appointment .aw-captchaimg{
+	border:1px solid #ccc;
+}
+.aw-appointment .aw-captcha{
+	max-width:150px;
+}
+.aw-appointment .aw-refresh{
+	height:45px;
+	cursor:pointer;
+}
+.aw-appointment .aw-refresh:active{
+	position:relative;
+	top:-1px;
 }
 .aw-appointment button.aw-button{
 	background-color: #0392ff;
