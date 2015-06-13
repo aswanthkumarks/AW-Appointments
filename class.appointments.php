@@ -88,12 +88,18 @@ class Appointments{
 	}
 	
 	public static function save_appointment(){
-		
+		session_start();
 		$response = array();
 		$response['status']=false;
 		$response['msg']="Invalid request";	
-		
-		if(self::validate_data($_POST)){
+		if(isset($_POST['aw-captcha'])&&isset($_POST['aw-var'])){
+			$sess=$_POST['aw-var'];
+		if($_POST['aw-captcha']==""){//$_SESSION[$sess]){
+			
+		$settings=json_decode(get_option('aw-appointments'),true);
+		if(self::validate_data($_POST,$settings)){	
+			
+			
 			$vals=$_POST;
 			$vals['ip']=self::get_client_ip();
 			$now=date('Y-m-d H:i:s',strtotime('now'));
@@ -122,17 +128,77 @@ class Appointments{
 				$response['data']=$_POST;
 			}
 			else{
-				$response['msg']="Failed to book appointment";
+				$response['msg']="<li>Failed to book appointment</li>";
 			}
 				
+		}
+		}
+		else{
+			$response['msg']="<li>Invalid Captcha</li>";
 		}	
+		}
+		else{
+			$response['msg']="<li>Invalid Request</li>";
+		}
+		
 		
 				
 		header( "Content-Type: application/json" );		
 		echo json_encode($response);
 		wp_die();
 	}
-	public static function validate_data($data){
+	public static function validate_data($data,$settings){
+		
+		$return['status']=true;
+		$return['msg']="";
+		$msgs=[];		
+			
+			foreach($data as $key=>$value){
+				if($key=="aw-email"){
+					if(!filter_var($data[''], FILTER_VALIDATE_EMAIL)){
+						$return['status']=false;
+						array_push($msgs, "<li>Invalid Email id</li>");						
+					}					
+				}
+				elseif($key=="aw-phone"){					
+					if(!preg_match("/^\+?([0-9]{2,3})\)?[-. ]?([0-9]{3,4})[-. ]?([0-9]{4,7})$/", $value)){
+						if(!preg_match("/^\(?([0-9]{3,4})\)?[-. ]?([0-9]{4,7})$/", $value)){
+							if(!preg_match("/^\(?([0-9]{2,3})\)?[-. ]?([0-9]{3,4})[-. ]?([0-9]{4,7})$/", $value)){
+								if(!preg_match("/^\d{9,10}$/", $value)){
+									$return['status']=false;
+									array_push($msgs, "<li>Invalid Phone Number id</li>");
+								}		
+							}
+						}
+						
+					}
+				}
+				elseif($key=="aw-name"){
+					if(!preg_match("/^[a-zA-Z ]*$/",$value)||strlen($value)<3){
+						$return['status']=false;
+						array_push($msgs, "<li>Only letters and white space allowed in name</li>");						
+					}
+				}
+				elseif($key=="aw-country"){
+					if(!preg_match("/^[a-zA-Z ]*$/",$value)||strlen($value)<3){
+						$return['status']=false;
+						array_push($msgs, "<li>Only letters and white space allowed in country</li>");
+					}
+				}
+				elseif($key=="aw-captcha"){
+					if(!preg_match("/^[a-zA-Z ]*$/",$value)||strlen($value)<3){
+						$return['status']=false;
+						array_push($msgs, "<li>Invalid Captcha</li>");
+					}
+				}
+				
+				
+				
+				
+			
+		}
+			
+			
 		return true;
 	}
 	
@@ -175,7 +241,6 @@ class Appointments{
 	public static function aw_scripts($disweek,$disabled,$min,$max){
 		?>
 				<script type="text/javascript">
-				
 				(function($){
 					var ajaxurl='<?php echo admin_url( 'admin-ajax.php' ); ?>'
 		
@@ -281,9 +346,7 @@ class Appointments{
 		            			if(response.status){
 		                			
 		            			}
-		            			
-		            			aw_showmsg(obj,response.msg);            			
-		            			
+		            			aw_showmsg(obj,response.msg);
 		            		}).fail(function(response) {
 		            			console.log(response);
 		          		  }).always(function() {
@@ -299,8 +362,8 @@ class Appointments{
 		
 		            function aw_showmsg(obj,msg){
 		
-		                obj.find('aw-msg').html(msg);
-		                obj.find('aw-msg').addClass('aw-shown');
+		                obj.find('.aw-msg').html(msg);
+		                obj.find('.aw-msg').addClass('aw-shown');
 		
 		             }
 		
