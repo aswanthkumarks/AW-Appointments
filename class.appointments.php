@@ -169,6 +169,7 @@ class Appointments{
 				$response['status']=true;
 				$response['msg']="<li>Appointment booked Successfully</li>";
 				$response['data']=$_POST;
+				self::send_email_alert($vals,$settings);
 				unset($_SESSION[$sess]);
 				
 			}
@@ -198,6 +199,27 @@ class Appointments{
 		echo json_encode($response);
 		wp_die();
 	}
+	
+	public static function send_email_alert($vals,$settings){
+		$msg[0]="<table><tbody>";
+		$remove=['aw-slot',
+				'aw-var',
+				'aw-captcha',
+		];
+		$i=1;
+		foreach($vals as $k=>$v){
+			if(!in_array($k, $remove)){
+				$msg[$i]="<tr><td>".str_replace("aw-", "", $k)."</td><td>".$v."</td></tr>";
+			}
+			$i++;			
+		}
+		
+		if($settings['email']['cc']!="") $headers[] = 'Cc: '.$settings['email']['cc'];
+		if($settings['email']['bcc']!="") $headers[] = 'Bcc: '.$settings['email']['bcc'];		
+		
+		wp_mail( $to, "Appointment through ".get_site_url(), join($msg), $headers );
+	}
+	
 	public static function validate_data($data,$settings){
 		
 		$return['status']=true;
@@ -283,6 +305,7 @@ class Appointments{
 			$disabled=array_merge($disabled,self::between_dates($ap['f'], $ap['t']));
 		}
 		
+		if(!isset($atts['theam']))$atts['theam']="basic";
 	
 		switch($atts['theam']){
 			case 'basic': require_once "template/basic.php"; break;
