@@ -37,6 +37,11 @@ class Appointmentadmin{
 		add_action( 'admin_menu', array( 'appointmentadmin', 'admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( 'appointmentadmin', 'load_resources' ) );
 		add_action('wp_ajax_aw_update_options', array('appointmentadmin','aw_update_options'));
+		add_action('wp_ajax_appointment_list', array('appointmentadmin','appointment_list'));
+	}
+	private static function appointmenttable(){
+		global $wpdb;
+		return $wpdb->prefix . 'aw_appointments';
 	}
 	
 	public static function admin_init() {
@@ -56,6 +61,97 @@ class Appointmentadmin{
 	
 		wp_register_script( 'ptTimeSelectjs', AW_APPOINTMENT_PLUGIN_URL . 'jquery.ptTimeSelect.js', array('jquery'), 1.0 );
 		wp_enqueue_script( 'ptTimeSelectjs' );
+	}
+	
+	
+	public static function load_appointments(){
+		$f=0;
+		global $wpdb;
+		if(isset($_POST['p'])){
+			$f=$_POST['p']*10;
+			
+		}
+		$c=10;		
+		
+		$return['no'] = $wpdb->get_var("SELECT COUNT(*) FROM ".self::appointmenttable()."
+				WHERE isdel = 0");
+		
+		$return['result'] = $wpdb->get_results(
+				"SELECT * FROM ".self::appointmenttable()."
+				WHERE isdel = 0 LIMIT ".$f.",".$c
+		);
+		$return['f']=$f;
+		$return['c']=$c;
+		return $return;
+	}
+	
+	public static function load_pagination($f,$c,$n){
+		$nop=$n/$c;
+		$i=0;
+		echo "<div class='aw_pagination'>";
+		while($i<$nop){
+			$class="";
+			if($i==$f) $class="aw_current";
+			echo '<a href="#" class="aw_page '.$class.'" data-page="'.$i.'">'.($i+1).'</a>';
+			$i++;
+		}
+		echo "</div>";
+		
+	}
+	
+	public static function appointment_list($res=""){
+		
+		if($res==""){
+			$res=self::load_appointments();
+		}
+		$html='<table class="aw-schedule">
+		<tbody>
+		<tr>
+		<th>Name</th>
+		<th>Email</th>
+		<th>Phone</th>
+		<th>Date</th>
+		<th>Time</th>
+		<th>Appointment taken on</th>
+		</tr>';
+		
+		$remove=['aw-slot','aw-name',
+				'aw-email',
+				'aw-phone',
+				'aw-var',
+				'aw-captcha',
+				'aw-time',
+		];
+		$class="odd";
+		foreach($res['result'] as $r){			
+			$details=json_decode($r->aw_details,true);			
+			$html.='<tr class="'.$class.'">';
+			$html.="<td>".$details['aw-name']."</td>";
+			$html.="<td>".$details['aw-email']."</td>";
+			$html.="<td>".$details['aw-phone']."</td>";
+			$html.="<td>".date('d-m-Y',strtotime($r->aw_date))."</td>";
+			$html.="<td>";
+						
+			if(isset($details['aw-time'])) $html.=$details['aw-time'];
+			
+			$html.="</td>";
+			$html.="<td>".date('d-m-Y H:i',strtotime($r->createdon))."</td>";
+			$html.="</tr>";
+			$html.='<tr class="'.$class.'">';
+			$html.="<td colspan='6'>";
+			foreach ($details as $dk=>$dv){
+				if(!in_array($dk, $remove)){
+					$html.="<span class='aw_more'>".str_replace("aw-", "", $dk)." : ". $dv."</span>";
+				}
+			}		
+			$html.="</td>";
+			$html.="</tr>";
+			if($class=="odd") $class="even";
+			else $class="odd";		
+		}
+		$html.="</tbody></table>";
+		echo $html;
+	
 	}
 	
 	public static function checkmydate($date) {

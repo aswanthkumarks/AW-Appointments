@@ -42,6 +42,26 @@
 .aw-appointment{
 	border:1px solid #ccc;
 }
+.aw-appointment .aw-msg{
+	font-size:12px;
+}
+.aw-appointment .aw-msg li{
+	padding:0 5px; 
+	list-style:none;
+}
+.aw-appointment .aw-msg.aw-shown{
+	border:1px solid #ff0000;
+	padding:5px;
+}
+.aw-appointment .aw-msg.aw-shown.aw-success{
+border:1px solid #00a549;
+}
+.aw-appointment .aw-msg.aw-shown li{
+	color:#ff0000;	
+}
+.aw-appointment .aw-msg.aw-shown.aw-success li{
+color:#00a549;	
+}
 .aw-appointment hr{
 padding:0; 
 margin:5px 0;

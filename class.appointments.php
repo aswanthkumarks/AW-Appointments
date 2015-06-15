@@ -58,7 +58,7 @@ class Appointments{
 		add_action( 'wp_enqueue_scripts', array( 'appointments', 'load_resources' ) );
 		add_action('wp_ajax_save_appointment', array('appointments','save_appointment'));
 		add_action( 'wp_ajax_nopriv_save_appointment', array('appointments','save_appointment'));
-		add_action( 'admin_head', array('appointments','aw_scripts') );
+		
 		
 	}
 	
@@ -87,6 +87,43 @@ class Appointments{
 		return $ret;
 	}
 	
+	public static function is_slot_awailable($vals,$settings){
+		$slots=0;
+		$awdate=date('Y-m-d',strtotime($vals['aw-date']));
+		$return['st']=false;
+		$return['val']='';
+		$day=strtolower(date('D', strtotime($vals['aw-date'])));
+		
+		foreach($settings['timing'][$day]['t'] as $key=>$val){
+			if($key==$vals['aw-slot']) {
+				$slots=$val['n'];
+				$return['val']=$val['f']."-".$val['t'];
+			}
+		}
+		
+		global $wpdb;
+		
+		$rows = $wpdb->get_results(
+				"SELECT aw_details
+				FROM ".self::appointmenttable()."
+				WHERE aw_date = '".$awdate."'
+				AND isdel = 0"
+		);
+		$i=0;
+		
+		foreach ( $rows as $r )
+		{
+			$data=json_decode($r->aw_details,true);
+			if($data['aw-slot']==$vals['aw-slot']) $i++;
+		}
+		
+		if($i<$slots) $return['st']=true;		
+		else $return['st']=false;
+		
+		return $return;
+		
+	}
+	
 	public static function save_appointment(){
 		session_start();
 		$response = array();
@@ -94,25 +131,29 @@ class Appointments{
 		$response['msg']="Invalid request";	
 		if(isset($_POST['aw-captcha'])&&isset($_POST['aw-var'])){
 			$sess=$_POST['aw-var'];
-		if($_POST['aw-captcha']==""){//$_SESSION[$sess]){
-			
+		if(isset($_SESSION[$sess])&&($_POST['aw-captcha']==$_SESSION[$sess])){
+												
 		$settings=json_decode(get_option('aw-appointments'),true);
-		if(self::validate_data($_POST,$settings)){	
-			
-			
+		$validate=self::validate_data($_POST,$settings);
+		if($validate['status']){
 			$vals=$_POST;
 			$vals['ip']=self::get_client_ip();
 			$now=date('Y-m-d H:i:s',strtotime('now'));
 			unset($vals['action']);
-			$date=date('Y-m-d',strtotime($vals['aw-date']));
-			unset($vals['aw-date']);
+			
 			
 			if(isset($vals['aw-docid'])){
 				$docid=$vals['aw-docid'];
 				unset($vals['aw-docid']);
 			}
 			else $docid=0;
-						
+			
+			$slst=self::is_slot_awailable($vals,$settings);
+			$vals['aw-time']=$slst['val'];
+			if($slst['st']){		
+				
+			$date=date('Y-m-d',strtotime($vals['aw-date']));
+			unset($vals['aw-date']);
 			global $wpdb;		
 			$ret=$wpdb->insert( self::appointmenttable(), 
 					array( 
@@ -122,15 +163,26 @@ class Appointments{
 							'aw_details'=> json_encode($vals),
 							'isdel'=>'0'
 			 ));
+			
+			
 			if($ret){
 				$response['status']=true;
-				$response['msg']="Appointment booked Successfully";
+				$response['msg']="<li>Appointment booked Successfully</li>";
 				$response['data']=$_POST;
+				unset($_SESSION[$sess]);
+				
 			}
 			else{
 				$response['msg']="<li>Failed to book appointment</li>";
 			}
+			}
+			else{
+				$response['msg']="<li>Apointment Closed for ".$vals['aw-time']." time slot</li>";
+			}
 				
+		}
+		else{
+			$response['msg']=$validate['msg'];
 		}
 		}
 		else{
@@ -141,7 +193,6 @@ class Appointments{
 			$response['msg']="<li>Invalid Request</li>";
 		}
 		
-		
 				
 		header( "Content-Type: application/json" );		
 		echo json_encode($response);
@@ -150,18 +201,19 @@ class Appointments{
 	public static function validate_data($data,$settings){
 		
 		$return['status']=true;
-		$return['msg']="";
+		$return['msg']='';
 		$msgs=[];		
-			
 			foreach($data as $key=>$value){
 				if($key=="aw-email"){
-					if(!filter_var($data[''], FILTER_VALIDATE_EMAIL)){
+					if(!filter_var($value, FILTER_VALIDATE_EMAIL)){
 						$return['status']=false;
 						array_push($msgs, "<li>Invalid Email id</li>");						
 					}					
 				}
-				elseif($key=="aw-phone"){					
-					if(!preg_match("/^\+?([0-9]{2,3})\)?[-. ]?([0-9]{3,4})[-. ]?([0-9]{4,7})$/", $value)){
+				elseif($key=="aw-phone"){
+					
+					  
+					 if(!preg_match("/^\+?([0-9]{2,3})\)?[-. ]?([0-9]{3,4})[-. ]?([0-9]{4,7})$/", $value)){
 						if(!preg_match("/^\(?([0-9]{3,4})\)?[-. ]?([0-9]{4,7})$/", $value)){
 							if(!preg_match("/^\(?([0-9]{2,3})\)?[-. ]?([0-9]{3,4})[-. ]?([0-9]{4,7})$/", $value)){
 								if(!preg_match("/^\d{9,10}$/", $value)){
@@ -172,6 +224,7 @@ class Appointments{
 						}
 						
 					}
+					
 				}
 				elseif($key=="aw-name"){
 					if(!preg_match("/^[a-zA-Z ]*$/",$value)||strlen($value)<3){
@@ -186,20 +239,21 @@ class Appointments{
 					}
 				}
 				elseif($key=="aw-captcha"){
-					if(!preg_match("/^[a-zA-Z ]*$/",$value)||strlen($value)<3){
+					if(strlen($value)<3){
 						$return['status']=false;
 						array_push($msgs, "<li>Invalid Captcha</li>");
 					}
-				}
 				
 				
 				
+				}	
 				
 			
 		}
+		$return['msg']=join($msgs);
 			
 			
-		return true;
+		return $return;
 	}
 	
 	private static function get_client_ip() {
@@ -344,13 +398,15 @@ class Appointments{
 		            		$.post(ajaxurl, postdata, function(response) {
 		                		console.log(response);
 		            			if(response.status){
-		                			
+		            				
 		            			}
 		            			aw_showmsg(obj,response.msg);
+		            			
 		            		}).fail(function(response) {
 		            			console.log(response);
 		          		  }).always(function() {
-		          			console.log("request ended");
+			          		  			          		  
+		          			changecaptcha(obj.find('.captcha'));
 		          			var btn=obj.find('.aw-button');
 	            			btn.removeClass('aw-btn-deactive');
 	            			btn.addClass('aw-btn-active');
@@ -361,10 +417,16 @@ class Appointments{
 		            });
 		
 		            function aw_showmsg(obj,msg){
-		
-		                obj.find('.aw-msg').html(msg);
-		                obj.find('.aw-msg').addClass('aw-shown');
-		
+			            obj=obj.find('.aw-msg');
+			            if(msg=='<li>Appointment booked Successfully</li>'){
+			            	obj.addClass('aw-success');
+			            	obj.closest('.aw-appointment').find('input[type=text],input[type=email],input[type=tel], textarea').val("");
+				         }
+			            else{
+			            	obj.removeClass('aw-success');
+			            }		
+		                obj.html(msg);
+		                obj.addClass('aw-shown');		
 		             }
 		
 		
@@ -419,6 +481,18 @@ class Appointments{
 		              	return valid;
 		
 		            }
+
+		            $('.aw-refresh').click(function(){
+		            	changecaptcha($(this).closest('.captcha'));
+			            });
+
+		            function changecaptcha(obj){
+		            	var cap=obj.find('.aw-captchaimg');
+			            var src=cap.attr('src')+'&r='+(Math.floor(Math.random()*90000) + 10000);
+			            console.log(src);
+			            cap.attr('src',src);
+
+			           }
 		     		 
 				})(jQuery);
 		  		</script>

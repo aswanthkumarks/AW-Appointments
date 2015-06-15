@@ -148,7 +148,37 @@ input.cmn-toggle-round:checked + label:after {
 	outline: none;
 	box-shadow:none;
 }
-
+.aw-appointment .aw_more{
+	display:inline-block;
+	padding:3px 10px;
+	margin:1px 3px;
+	background-color:#eaecfc;
+}
+#aw_appointmenttab table.aw-schedule{
+	width:98%;
+}
+#aw_appointmenttab table.aw-schedule .odd{
+	background-color:#F2F1E8;
+}
+.aw_pagination .aw_page{
+	display:inline-block;
+	padding:4px 8px;
+	color:#333;
+	text-decoration:none;
+	box-shadow:0 0 3px #B2A9A9;
+}
+.aw_pagination .aw_page:hover{
+	background:#0F8791;
+	color:#fff;
+}
+.aw_pagination .aw_page:active{
+	position:relative;
+	top:-1px;
+}
+.aw_pagination .aw_current{
+	background:#0074A2;
+	color:#fff;
+}
 .aw-appointment .timemsg.aw-shown{
 	padding:4px;
 	box-shadow:0 0 3px #1291D3;

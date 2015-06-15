@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 if(isset($_GET['var'])) $var=$_GET['var'];
 else $var='aw-captcha';

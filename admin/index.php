@@ -2,8 +2,8 @@
 $awobj=new Appointmentadmin();
 if(isset($_POST['aw-setting'])) $awobj->saveSettings($_POST['aw-setting']);
 
-
 $settings=$awobj->getSettings();
+
 ?>
 
 
@@ -15,16 +15,16 @@ $settings=$awobj->getSettings();
 
 
 <ul class="nav-tabs" role="tablist" id="aw-appointment-tab">
-  <li role="presentation"><a href="#aw-applist" class="dashicons-before dashicons-backup" aria-controls="home" role="tab" data-toggle="tab">Appointments</a></li>
-  <li role="presentation"  class="active"><a href="#aw-schedule" aria-controls="schedule" role="tab" data-toggle="tab">General Schedule</a></li>
+  <li role="presentation" class="active"><a href="#aw-applist" class="dashicons-before dashicons-backup" aria-controls="home" role="tab" data-toggle="tab">Appointments</a></li>
+  <li role="presentation"><a href="#aw-schedule" aria-controls="schedule" role="tab" data-toggle="tab">General Schedule</a></li>
   <li role="presentation"><a href="#aw-settings" class="dashicons-before dashicons-admin-generic" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
 </ul>
 
 <div class="tab-content">
-  <div role="tabpanel" class="tab-pane" id="aw-applist">
+  <div role="tabpanel" class="tab-pane active" id="aw-applist">
   	<?php require_once 'tab.appointments.php';?>  
   </div>
-  <div role="tabpanel" class="tab-pane active" id="aw-schedule">
+  <div role="tabpanel" class="tab-pane" id="aw-schedule">
   	<?php require_once 'tab.schedule.php';?>
   </div>
   <div role="tabpanel" class="tab-pane" id="aw-settings">
@@ -209,7 +209,7 @@ $("#aw-settings2").click(function(){
 		
 		var awcover=aw_show_loading();
 		var data={ action: 'aw_update_options' , field: 'disabledetails', f: df, t: dt };
-		console.log(data);	
+		
 		$.post(ajaxurl, data, function(response) {
 			if(response.resp){
 				aw_show_msg(obj.closest('.wrap'),response.msg);
@@ -225,7 +225,28 @@ $("#aw-settings2").click(function(){
 	else aw_show_msg(obj.closest('.wrap'),"Invalid Dates");
 	
 });
+
+$('.aw_page').click(function(){
+	var pg=$(this).attr('data-page');
+	var obj=$(this);
+	$('.aw_page').removeClass('aw_current');	
+	var awcover=aw_show_loading();
+	var data={ action: 'appointment_list' , p: pg };
+	$.post(ajaxurl, data, function(response) {
+		console.log(response);
+		$('#aw_appointmenttab').html(response);
+		obj.addClass('aw_current');
+		no=(Number(pg)*10)+1;
+		len=(($('#aw_appointmenttab table tr').length-1)/2)-1;
+		$("#aw_pagination_no").html("Showing result from "+no+" to "+(no+len));
+	}).fail(function(response) {
+		
+	  }).always(function() {
+		awcover.remove();
+	});
+	return false;
 	
+});
 	
 	
 })(jQuery);
