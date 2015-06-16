@@ -169,6 +169,7 @@ class Appointments{
 				$response['status']=true;
 				$response['msg']="<li>Appointment booked Successfully</li>";
 				$response['data']=$_POST;
+				$vals['aw-date']=$date;
 				self::send_email_alert($vals,$settings);
 				unset($_SESSION[$sess]);
 				
@@ -201,7 +202,7 @@ class Appointments{
 	}
 	
 	public static function send_email_alert($vals,$settings){
-		$msg[0]="<table><tbody>";
+		$msg[0]='<table style="background-color:#fff; width:100%; max-width:500px;"><tbody>';
 		$remove=['aw-slot',
 				'aw-var',
 				'aw-captcha',
@@ -217,7 +218,14 @@ class Appointments{
 		if($settings['email']['cc']!="") $headers[] = 'Cc: '.$settings['email']['cc'];
 		if($settings['email']['bcc']!="") $headers[] = 'Bcc: '.$settings['email']['bcc'];		
 		
-		wp_mail( $to, "Appointment through ".get_site_url(), join($msg), $headers );
+		$sub="Appointment through ".get_site_url();
+		add_filter( 'wp_mail_content_type', 'set_html_content_type' );
+		function set_html_content_type() { return 'text/html';}
+		
+		if($settings['email']['to']!="") $to=explode(',',$settings['email']['to']);
+		else $to="";
+
+		wp_mail( $to, $sub, join($msg), $headers );
 	}
 	
 	public static function validate_data($data,$settings){
@@ -306,7 +314,7 @@ class Appointments{
 		}
 		
 		if(!isset($atts['theam']))$atts['theam']="basic";
-	
+
 		switch($atts['theam']){
 			case 'basic': require_once "template/basic.php"; break;
 			default: require_once "theam/basic.php"; break;
