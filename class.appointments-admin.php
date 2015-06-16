@@ -78,7 +78,7 @@ class Appointmentadmin{
 		
 		$return['result'] = $wpdb->get_results(
 				"SELECT * FROM ".self::appointmenttable()."
-				WHERE isdel = 0 LIMIT ".$f.",".$c
+				WHERE isdel = 0 order by id desc LIMIT ".$f.",".$c
 		);
 		$return['f']=$f;
 		$return['c']=$c;
@@ -135,7 +135,7 @@ class Appointmentadmin{
 			if(isset($details['aw-time'])) $html.=$details['aw-time'];
 			
 			$html.="</td>";
-			$html.="<td>".date('d-m-Y H:i',strtotime($r->createdon))."</td>";
+			$html.="<td>".date('d-m-Y H:i:s',strtotime($r->createdon))."</td>";
 			$html.="</tr>";
 			$html.='<tr class="'.$class.'">';
 			$html.="<td colspan='6'>";

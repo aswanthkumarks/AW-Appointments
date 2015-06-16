@@ -58,6 +58,7 @@ class Appointments{
 		add_action( 'wp_enqueue_scripts', array( 'appointments', 'load_resources' ) );
 		add_action('wp_ajax_save_appointment', array('appointments','save_appointment'));
 		add_action( 'wp_ajax_nopriv_save_appointment', array('appointments','save_appointment'));
+		add_action( 'wp_footer', array('appointments','aw_style'));
 		
 		
 	}
@@ -124,6 +125,12 @@ class Appointments{
 		
 	}
 	
+	public static function aw_style(){
+		require_once 'style.php';
+	}
+	
+	
+	
 	public static function save_appointment(){
 		session_start();
 		$response = array();
@@ -138,7 +145,7 @@ class Appointments{
 		if($validate['status']){
 			$vals=$_POST;
 			$vals['ip']=self::get_client_ip();
-			$now=date('Y-m-d H:i:s',strtotime('now'));
+			$now=current_time( 'mysql' );
 			unset($vals['action']);
 			
 			
@@ -515,7 +522,7 @@ class Appointments{
 
 		            $('.aw-refresh').click(function(){
 		            	changecaptcha($(this).closest('.captcha'));
-			            });
+			         });
 
 		            function changecaptcha(obj){
 		            	var cap=obj.find('.aw-captchaimg');

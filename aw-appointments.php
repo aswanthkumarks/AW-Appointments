@@ -19,7 +19,6 @@ define( 'AW_APPOINTMENT_DELETE_LIMIT', 100000 );
 register_activation_hook( __FILE__, array( 'Appointments', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Appointments', 'plugin_deactivation' ) );
 
-require_once( AW_APPOINTMENT_PLUGIN_DIR . 'class.singleton.php' );
 require_once( AW_APPOINTMENT_PLUGIN_DIR . 'class.appointments.php' );
 add_action( 'init', array( 'appointments', 'init' ) );
 
