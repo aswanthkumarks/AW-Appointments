@@ -38,6 +38,7 @@ class Appointmentadmin{
 		add_action( 'admin_enqueue_scripts', array( 'appointmentadmin', 'load_resources' ) );
 		add_action('wp_ajax_aw_update_options', array('appointmentadmin','aw_update_options'));
 		add_action('wp_ajax_appointment_list', array('appointmentadmin','appointment_list'));
+		add_action('wp_ajax_appointment_trash', array('appointmentadmin','appointment_trash'));
 	}
 	private static function appointmenttable(){
 		global $wpdb;
@@ -64,46 +65,48 @@ class Appointmentadmin{
 	}
 	
 	
-	public static function load_appointments(){
+	public static function load_appointments($isdel=0){
+		
 		$f=0;
 		global $wpdb;
 		if(isset($_POST['p'])){
-			$f=$_POST['p']*10;
-			
+			$f=$_POST['p']*10;			
 		}
+		
+		
 		$c=10;		
 		
 		$return['no'] = $wpdb->get_var("SELECT COUNT(*) FROM ".self::appointmenttable()."
-				WHERE isdel = 0");
+				WHERE isdel = ".$isdel);
 		
 		$return['result'] = $wpdb->get_results(
 				"SELECT * FROM ".self::appointmenttable()."
-				WHERE isdel = 0 order by id desc LIMIT ".$f.",".$c
+				WHERE isdel = ".$isdel." order by id desc LIMIT ".$f.",".$c
 		);
 		$return['f']=$f;
 		$return['c']=$c;
 		return $return;
 	}
 	
-	public static function load_pagination($f,$c,$n){
+	public static function load_pagination($f,$c,$n,$isdel=0){
 		$nop=$n/$c;
 		$i=0;
 		echo "<div class='aw_pagination'>";
 		while($i<$nop){
 			$class="";
 			if($i==$f) $class="aw_current";
-			echo '<a href="#" class="aw_page '.$class.'" data-page="'.$i.'">'.($i+1).'</a>';
+			echo '<a href="#" data-isdel="'.$isdel.'" class="aw_page '.$class.'" data-page="'.$i.'">'.($i+1).'</a>';
 			$i++;
 		}
-		echo "</div>";
-		
+		echo "</div>";		
 	}
 	
 	public static function appointment_list($res=""){
-		
 		if($res==""){
-			$res=self::load_appointments();
+			 $res=self::load_appointments($_POST['d']);
 		}
+		
+		
 		$html='<table class="aw-schedule">
 		<tbody>
 		<tr>
@@ -123,10 +126,19 @@ class Appointmentadmin{
 				'aw-time',
 		];
 		$class="odd";
-		foreach($res['result'] as $r){			
+		foreach($res['result'] as $r){
+			if($r->isdel==1) {
+				$isdel="dashicons-undo";
+				$deltitle="Restore";
+			}
+			else{
+				$isdel="dashicons-trash";
+				$deltitle="Delete";
+			}
+				
 			$details=json_decode($r->aw_details,true);			
 			$html.='<tr class="'.$class.'">';
-			$html.="<td>".$details['aw-name']."</td>";
+			$html.="<td>".$details['aw-name'].$r->isdel."</td>";
 			$html.="<td>".$details['aw-email']."</td>";
 			$html.="<td>".$details['aw-phone']."</td>";
 			$html.="<td>".date('d-m-Y',strtotime($r->aw_date))."</td>";
@@ -136,6 +148,7 @@ class Appointmentadmin{
 			
 			$html.="</td>";
 			$html.="<td>".date('d-m-Y H:i:s',strtotime($r->createdon))."</td>";
+			$html.="<td><a title='$deltitle' class='aw_trash_app dashicons $isdel' data-isdel='".$r->isdel."' data-id='".$r->id."' href='#'></a></td>";
 			$html.="</tr>";
 			$html.='<tr class="'.$class.'">';
 			$html.="<td colspan='6'>";
@@ -151,7 +164,19 @@ class Appointmentadmin{
 		}
 		$html.="</tbody></table>";
 		echo $html;
+		
+		return "";		
+	}
 	
+	public static function appointment_trash(){
+		if(isset($_POST['id'])){
+			global $wpdb;
+			
+			if($_POST['d']==0) $wpdb->query("UPDATE ".self::appointmenttable()." SET isdel = 1 WHERE ID = ".$_POST['id']);
+			else  $wpdb->query("UPDATE ".self::appointmenttable()." SET isdel = 0 WHERE ID = ".$_POST['id']);
+			
+		}
+		
 	}
 	
 	public static function checkmydate($date) {

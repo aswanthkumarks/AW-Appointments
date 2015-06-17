@@ -154,10 +154,10 @@ input.cmn-toggle-round:checked + label:after {
 	margin:1px 3px;
 	background-color:#eaecfc;
 }
-#aw_appointmenttab table.aw-schedule{
+.aw_appointmenttab table.aw-schedule{
 	width:98%;
 }
-#aw_appointmenttab table.aw-schedule .odd{
+.aw_appointmenttab table.aw-schedule .odd{
 	background-color:#F2F1E8;
 }
 .aw_pagination .aw_page{

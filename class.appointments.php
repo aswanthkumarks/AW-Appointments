@@ -231,8 +231,16 @@ class Appointments{
 		
 		if($settings['email']['to']!="") $to=explode(',',$settings['email']['to']);
 		else $to="";
+		
+		$message=join($msg);
 
-		wp_mail( $to, $sub, join($msg), $headers );
+		wp_mail( $to, $sub, $message, $headers );
+		
+		if($vals['aw-email']!=""){
+			$message="<p>Hi ".$vals['aw-name']."</p><p>Your appointment has been booked with the following details</p>".$message;
+			wp_mail( $vals['aw-email'], $sub, $message );
+		}
+			
 	}
 	
 	public static function validate_data($data,$settings){

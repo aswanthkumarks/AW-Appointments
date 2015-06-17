@@ -18,6 +18,7 @@ $settings=$awobj->getSettings();
   <li role="presentation" class="active"><a href="#aw-applist" class="dashicons-before dashicons-backup" aria-controls="home" role="tab" data-toggle="tab">Appointments</a></li>
   <li role="presentation"><a href="#aw-schedule" aria-controls="schedule" role="tab" data-toggle="tab">General Schedule</a></li>
   <li role="presentation"><a href="#aw-settings" class="dashicons-before dashicons-admin-generic" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
+  <li><a href="#aw-trash" aria-controls="trash" role="tab" data-toggle="tab">Trash</a></li>
 </ul>
 
 <div class="tab-content">
@@ -28,8 +29,10 @@ $settings=$awobj->getSettings();
   	<?php require_once 'tab.schedule.php';?>
   </div>
   <div role="tabpanel" class="tab-pane" id="aw-settings">
-  <?php require_once 'tab.settings.php';?>
-  
+  <?php require_once 'tab.settings.php';?>  
+  </div>
+  <div role="tabpanel" class="tab-pane" id="aw-trash">
+  <?php require_once 'tab.trash.php';?>  
   </div>
 </div>
 
@@ -228,17 +231,21 @@ $("#aw-settings2").click(function(){
 
 $('.aw_page').click(function(){
 	var pg=$(this).attr('data-page');
+	var d=$(this).attr('data-isdel');
 	var obj=$(this);
-	$('.aw_page').removeClass('aw_current');	
+	var parent=obj.closest('.tab-pane');
+	parent.find('.aw_page').removeClass('aw_current');	
 	var awcover=aw_show_loading();
-	var data={ action: 'appointment_list' , p: pg };
+	var data={ action: 'appointment_list' , p: pg ,d : d};
 	$.post(ajaxurl, data, function(response) {
-		console.log(response);
-		$('#aw_appointmenttab').html(response);
+		if(response.substr(response.length - 1)==Number(0)){
+			response=response.slice(0, -1);
+		} 
+		parent.find('.aw_appointmenttab').html(response);
 		obj.addClass('aw_current');
 		no=(Number(pg)*10)+1;
-		len=(($('#aw_appointmenttab table tr').length-1)/2)-1;
-		$("#aw_pagination_no").html("Showing result from "+no+" to "+(no+len));
+		len=((parent.find('.aw_appointmenttab table tr').length-1)/2)-1;
+		parent.find(".aw_pagination_no").html("Showing result from "+no+" to "+(no+len));
 	}).fail(function(response) {
 		
 	  }).always(function() {
@@ -247,12 +254,33 @@ $('.aw_page').click(function(){
 	return false;
 	
 });
+
+
+$(document).on('click','.aw_trash_app',function(){
+	if(confirm("Are you sure ?")){
+		var awcover=aw_show_loading();
+		var obj=$(this).closest('.tab-pane');
+		var data={ action: 'appointment_trash' , id: $(this).attr('data-id'), d: $(this).attr('data-isdel') };
+		
+		$.post(ajaxurl, data, function() {
+			obj.find( ".aw_page.aw_current" ).trigger( "click" );					
+		}).fail(function(response) {
+			
+		  }).always(function() {
+			awcover.remove();
+		});
+		
+	}
+	return false;
+	});
+	
+
 	
 	
 })(jQuery);
 
 function aw_validatedate(dt){
-	console.log(dt);
+
 	return true;
 }
 function aw_validateemail(email){
