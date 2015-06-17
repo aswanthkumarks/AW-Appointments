@@ -85,7 +85,7 @@ $settings=$awobj->getSettings();
 		var data={ action: 'aw_update_options' , field: 'onoff', key: skey,value: status };
 		
 		jQuery.post(ajaxurl, data, function(response) {
-		     console.log (response);
+		     
 		}).always(function() {
 			awcover.remove();
 		});
@@ -114,7 +114,7 @@ $settings=$awobj->getSettings();
 		$.post(ajaxurl, data, function(response) {
 			if(response.resp){
 				aw_show_msg(obj.closest('.wrap'),"Settings updated successfully");
-				console.log(response);
+				
 				populatedisabled(response.data);			
 			}
 		}).fail(function(response) {
@@ -141,7 +141,7 @@ $settings=$awobj->getSettings();
 			var data={ action: 'aw_update_options' , field: 'newsch', key: skey, from: ft, to: tt , noa: nos };	
 					
 			$.post(ajaxurl, data, function(response) {
-				console.log(response);
+				
 				if(response.resp) populateschedule(td,response.data);
 			}).fail(function(response) {
 				 

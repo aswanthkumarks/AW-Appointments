@@ -429,7 +429,6 @@ class Appointments{
 		              		             		
 		                	});
 		            	postdata+='}';
-		            	console.log(postdata);
 		            	postdata=JSON.parse(postdata);
 		            	
 		            	if(typeof obj.find('[type="radio"]:checked').val() == 'undefined'){
@@ -442,14 +441,14 @@ class Appointments{
 		            		$(this).addClass('aw-btn-deactive');
 		            		                	
 		            		$.post(ajaxurl, postdata, function(response) {
-		                		console.log(response);
+		                		
 		            			if(response.status){
 		            				
 		            			}
 		            			aw_showmsg(obj,response.msg);
 		            			
 		            		}).fail(function(response) {
-		            			console.log(response);
+		            			
 		          		  }).always(function() {
 			          		  			          		  
 		          			changecaptcha(obj.find('.captcha'));
@@ -535,7 +534,7 @@ class Appointments{
 		            function changecaptcha(obj){
 		            	var cap=obj.find('.aw-captchaimg');
 			            var src=cap.attr('src')+'&r='+(Math.floor(Math.random()*90000) + 10000);
-			            console.log(src);
+			            
 			            cap.attr('src',src);
 
 			           }
