@@ -58,7 +58,7 @@ class Appointments{
 		add_action( 'wp_enqueue_scripts', array( 'appointments', 'load_resources' ) );
 		add_action('wp_ajax_save_appointment', array('appointments','save_appointment'));
 		add_action( 'wp_ajax_nopriv_save_appointment', array('appointments','save_appointment'));
-		add_action( 'wp_footer', array('appointments','aw_style'));
+		
 		
 		
 	}
@@ -313,6 +313,21 @@ class Appointments{
 	}
 	public static function shortcode($atts){
 		$opt=self::$settings;
+		
+		if(!isset($atts['theam'])) $atts['theam']="basic";
+
+		switch($atts['theam']){
+			case 'basic': require "template/basic.php"; break;
+			default: require "theam/basic.php"; break;
+		}
+		
+		add_action( 'wp_footer', array('appointments','aw_style'));
+		add_action( 'wp_footer', array('appointments','aw_scripts'));
+		
+	}
+	
+	public static function aw_scripts(){		
+		$opt=self::$settings;
 		$disabled=[];
 		$disweek=[];
 		$min=date("n-j-Y",strtotime(date("Y-m-d", strtotime('now')) . " +".$opt['pm']."days"));
@@ -320,7 +335,7 @@ class Appointments{
 		
 		foreach ($opt['timing'] as $key=>$val){
 			if(!$val['s']) {
-					array_push($disweek, self::$week[$key]);
+				array_push($disweek, self::$week[$key]);
 			}
 		}
 		
@@ -328,17 +343,6 @@ class Appointments{
 			$disabled=array_merge($disabled,self::between_dates($ap['f'], $ap['t']));
 		}
 		
-		if(!isset($atts['theam']))$atts['theam']="basic";
-
-		switch($atts['theam']){
-			case 'basic': require_once "template/basic.php"; break;
-			default: require_once "theam/basic.php"; break;
-		}
-		self::aw_scripts($disweek,$disabled,$min,$max);
-		
-	}
-	
-	public static function aw_scripts($disweek,$disabled,$min,$max){
 		?>
 				<script type="text/javascript">
 				(function($){
