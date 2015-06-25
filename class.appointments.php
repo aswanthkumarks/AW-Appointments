@@ -537,8 +537,9 @@ class Appointments{
 
 		            function changecaptcha(obj){
 		            	var cap=obj.find('.aw-captchaimg');
-			            var src=cap.attr('src')+'&r='+(Math.floor(Math.random()*90000) + 10000);
-			            
+		            	var src=cap.attr('src');
+		            	src=src.substring(0, src.indexOf('?'));
+			            src=src+'?var='+obj.find('.aw-captchavar').val()+'&r='+(Math.floor(Math.random()*90000) + 10000);
 			            cap.attr('src',src);
 
 			           }
