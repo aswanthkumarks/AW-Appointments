@@ -35,12 +35,13 @@ margin:5px 0;
 }
 .aw-appointment .aw-captchaimg{
 	border:1px solid #ccc;
+	height:31px;
 }
 .aw-appointment .aw-captcha{
 	max-width:150px;
 }
 .aw-appointment .aw-refresh{
-	height:45px;
+	height:31px;
 	cursor:pointer;
 }
 .aw-appointment .aw-refresh:active{
