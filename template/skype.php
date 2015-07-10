@@ -1,7 +1,8 @@
 <div class="aw-appointment basic">
 <form>
+<input type="hidden" class="aw-type" name="aw-type" value="skype"/>
 <input type="text" class="aw-date aw-input" placeholder="Choose Date" name="aw-date"/>
-<input type="hidden" class="aw-type" name="aw-type" value="normal"/>
+
 <div class="aw-weeks">
 <?php foreach($opt['timing'] as $key=>$value){
 	if($value['s']){
@@ -18,6 +19,7 @@
 <input type="text" class="aw-name aw-input" placeholder="Your name" name="aw-name"/>
 <input type="email" class="aw-email aw-input" placeholder="Your email" name="aw-email"/>
 <input type="tel" class="aw-phone aw-input" placeholder="Your phone" name="aw-phone"/>
+<input type="text" class="aw-skypeid aw-input" placeholder="Your Skype Id" name="aw-skypeid"/>
 <hr/>
 <div class="aw-locations"><label>Your Location Details</label>
 <textarea class="aw-address aw-input" name="aw-address" placeholder="Your address"></textarea>

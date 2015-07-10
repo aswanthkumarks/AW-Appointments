@@ -68,6 +68,8 @@ class Appointments{
 		wp_enqueue_style( 'jquery-ui');		
 		wp_register_script( 'jquery-ui', '//code.jquery.com/ui/1.11.4/jquery-ui.js', array('jquery'), 1.11 );
 		wp_enqueue_script( 'jquery-ui' );
+		wp_register_script( 'aw-appointment', AW_APPOINTMENT_PLUGIN_URL . 'appointment.js', array('jquery'), 1.0, true );
+		wp_enqueue_script( 'aw-appointment' );
 	}
 	public function getSettings(){
 		return self::$settings;
@@ -318,6 +320,7 @@ class Appointments{
 
 		switch($atts['theam']){
 			case 'basic': require "template/basic.php"; break;
+			case 'skype': require "template/skype.php"; break;
 			default: require "theam/basic.php"; break;
 		}
 		
@@ -345,206 +348,13 @@ class Appointments{
 		
 		?>
 				<script type="text/javascript">
-				(function($){
-					var ajaxurl='<?php echo admin_url( 'admin-ajax.php' ); ?>'
-		
-		
-					var disableddates = ["12-3-2014", "12-11-2014", "12-25-2014", "12-20-2014"];
-					function DisableSpecificDates(date) {
-						var disweek = <?php echo json_encode($disweek); ?>;
-						var disabledate =<?php echo json_encode($disabled); ?>;
-						var off=false;
-		
-						var m = date.getMonth();
-						var d = date.getDate();
-						var y = date.getFullYear();
-		
-						
-						var dnow=(m+1)+'-'+d+'-'+y;
-						if ($.inArray(dnow, disabledate) !== -1 ) {
-							off=true;
-						 	return [false];
-						}
-						
-						if(!off){	 
-						 var day = date.getDay();
-						 if ($.inArray(day,disweek) !== -1) {				 
-						 	return [false] ;				 
-						 }
-						 else {					 			 				 
-						  return [true] ;
-						 }
-						}
-					 
-					}
-					
-		    		$( ".aw-date" ).datepicker({
-		    			 beforeShowDay: DisableSpecificDates,
-		    			 minDate: new Date('<?php echo $min; ?>'),
-		    			 maxDate: new Date('<?php echo $max; ?>'),
-		    			 onSelect: function(d,i){
-		    		          if(d !== i.lastVal){
-		    		              $(this).change();
-		    		          }
-		    		     },
-		    		 });
-		
-		      		
-		
-		      		 $(".aw-input").change(function(){
-		      			var inputval=$(this).val();
-		      			var valid=validateform($(this),inputval);       		
-		          		if(valid){
-		              		if($(this).hasClass('aw-date')){
-		              			var d = new Date(inputval);
-		              			var n = d.getDay();
-		              			$('.aw-week').addClass('aw-hideday');
-		              			$('#aw-slot-'+n).removeClass('aw-hideday');
-		              			$('.aw-week input').removeAttr('checked');
-		                  	}              		
-		          			$(this).removeClass("aw-error");
-		              		}
-		          		else{
-		          			$(this).addClass("aw-error");
-		              		}
-		          	});
-		           	$('.aw-slot input').click(function(){
-		               	$(this).closest('.aw-weeks').removeClass("aw-error");
-		
-		            });
-		
-		            $('.aw-btn-active').click(function(){
-		               
-		                var formvalid=true;
-		            	var re = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
-		            	var obj=$(this).closest('.aw-appointment');
-		            	var data=obj.find('form').serializeArray();
-		            	var postdata='{ "action" : "save_appointment"';
-		            	$.each(data,function(k,v){
-		                	var valid=validateform(obj.find('[name='+v.name+']'),v.value);               	         		
-		              		if(valid){
-		              			obj.find('[name='+v.name+']').removeClass("aw-error");
-		                  		}
-		              		else{
-		              			obj.find('[name='+v.name+']').addClass("aw-error");
-		              			formvalid=false;
-		                  		}
-		              		postdata+=',"'+v.name+'" : "'+ v.value + '"';
-		              		             		
-		                	});
-		            	postdata+='}';
-		            	postdata=JSON.parse(postdata);
-		            	
-		            	if(typeof obj.find('[type="radio"]:checked').val() == 'undefined'){
-		            		obj.find('.aw-weeks').addClass('aw-error');
-		            		formvalid=false;
-		                }
-		            	
-		            	if(formvalid){
-		            		$(this).removeClass('aw-btn-active');
-		            		$(this).addClass('aw-btn-deactive');
-		            		                	
-		            		$.post(ajaxurl, postdata, function(response) {
-		                		
-		            			if(response.status){
-		            				
-		            			}
-		            			aw_showmsg(obj,response.msg);
-		            			
-		            		}).fail(function(response) {
-		            			
-		          		  }).always(function() {
-			          		  			          		  
-		          			changecaptcha(obj.find('.captcha'));
-		          			var btn=obj.find('.aw-button');
-	            			btn.removeClass('aw-btn-deactive');
-	            			btn.addClass('aw-btn-active');
-		          		});
-		                
-		                
-		            	}
-		            });
-		
-		            function aw_showmsg(obj,msg){
-			            obj=obj.find('.aw-msg');
-			            if(msg=='<li>Appointment booked Successfully</li>'){
-			            	obj.addClass('aw-success');
-			            	obj.closest('.aw-appointment').find('input[type=text],input[type=email],input[type=tel], textarea').val("");
-				         }
-			            else{
-			            	obj.removeClass('aw-success');
-			            }		
-		                obj.html(msg);
-		                obj.addClass('aw-shown');		
-		             }
-		
-		
-		                   
-		
-		            function validateform(obj,inputval){
-		            	if(obj.hasClass('aw-date')){              		
-		          			var re = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
-		          			if(!inputval.match(re)){
-		          				valid=false;             	
-		                    }
-		            		else{
-		            			valid=true;            			
-		                    }
-		              	}
-		              		else if(obj.hasClass('aw-name')){
-		                  		if(inputval.length<4){ valid=false; }
-		                  		else{ valid=true; }
-		                  	}
-		              		else if(obj.hasClass('aw-email')){
-		              			var eregx = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-		                    	if(!eregx.test(inputval)){ valid=false; }
-		                  		else{ valid=true; }
-		                  	}
-		              		else if(obj.hasClass('aw-phone')){
-		                  		var preg=/^\+?([0-9]{2,3})\)?[-. ]?([0-9]{3,4})[-. ]?([0-9]{4,7})$/;
-		                  		var preg1=/^\(?([0-9]{3,4})\)?[-. ]?([0-9]{4,7})$/;
-		                  		var preg2=/^\(?([0-9]{2,3})\)?[-. ]?([0-9]{3,4})[-. ]?([0-9]{4,7})$/;
-		                  		var preg3=/^\d{9,10}$/;
-		                  		if(preg.test(inputval)||preg1.test(inputval)||preg2.test(inputval)||preg3.test(inputval)){
-		                      		valid=true;
-		                      	}
-		                  		else{ valid=false; }
-		                  	}
-		              		else if(obj.hasClass('aw-city')){
-		              			if(inputval.length<3) valid=false;
-		              			else valid=true;
-		                  	}
-		              		else if(obj.hasClass('aw-country')){
-		              			if(inputval.length<3) valid=false;
-		              			else valid=true;
-		                  	}
-		              		else if(obj.hasClass('aw-address')){
-		              			if(inputval.length<5||inputval.length>200) valid=false;
-		              			else valid=true;
-		                  	}
-		              		else if(obj.hasClass('aw-captcha')){
-		              			if(inputval.length<4) valid=false;
-		              			else valid=true;
-		                  	}
-		
-		              	return valid;
-		
-		            }
-
-		            $('.aw-refresh').click(function(){
-		            	changecaptcha($(this).closest('.captcha'));
-			         });
-
-		            function changecaptcha(obj){
-		            	var cap=obj.find('.aw-captchaimg');
-		            	var src=cap.attr('src');
-		            	src=src.substring(0, src.indexOf('?'));
-			            src=src+'?var='+obj.find('.aw-captchavar').val()+'&r='+(Math.floor(Math.random()*90000) + 10000);
-			            cap.attr('src',src);
-
-			           }
-		     		 
-				})(jQuery);
+				var aw_app={
+						ajaxurl : "<?php echo admin_url( 'admin-ajax.php' ); ?>",
+						disweek : <?php echo json_encode($disweek); ?>,
+						disdate : <?php echo json_encode($disabled); ?>,
+						apmin : '<?php echo $min; ?>',
+						apmax : '<?php echo $max; ?>',
+						};
 		  		</script>
 				
 				<?php 
@@ -570,34 +380,32 @@ class Appointments{
 			global $wpdb;
 			$aw_appointments = get_option( "aw-appointments" );
 			$aw_appointments=json_decode($aw_appointments, true);
+			
 			if($aw_appointments==NULL) $aw_appointments=self::aw_appointments();
 			
+			$awtable=self::appointmenttable();
 
-			if( $aw_appointments['ver'] == "0" ) {
-				$aw_appointments['ver']=AW_APPOINTMENT_VERSION;
-				$sql = "CREATE TABLE ".self::appointmenttable()." (`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-					`docid` smallint(6) unsigned DEFAULT NULL,
-					`aw_date` date NOT NULL,
-					`createdon` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-					`aw_details` longtext NOT NULL,
-					`isdel` tinyint(1) unsigned NOT NULL DEFAULT '0',
-					PRIMARY KEY (`id`)) ".$wpdb->get_charset_collate();				
-				require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-				dbDelta( $sql );
-				$aw_appointments=json_encode($aw_appointments);
-				add_option( "aw-appointments", $aw_appointments );
-			}
-			elseif($aw_appointments['ver']!=AW_APPOINTMENT_VERSION){
+			
 				/*
 				 * update plugin
 				 * 
 				 */
-				$aw_appointments=self::aw_appointments();
+				$sql = "CREATE TABLE ".$awtable." (`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+					`docid` smallint(6) unsigned DEFAULT NULL,
+					`aw_date` date NOT NULL,
+					`createdon` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+					`aw_details` longtext NOT NULL,
+					`aw_type` tinyint(2) unsigned NOT NULL DEFAULT '0',
+					`isdel` tinyint(1) unsigned NOT NULL DEFAULT '0',
+					PRIMARY KEY (`id`)) ".$wpdb->get_charset_collate();
+				require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+				dbDelta( $sql );
+				
 				$aw_appointments['ver']=AW_APPOINTMENT_VERSION;
 				$aw_appointments=json_encode($aw_appointments);
 				update_option("aw-appointments", $aw_appointments );
 				
-			}
+			
 			
 		}
 	}

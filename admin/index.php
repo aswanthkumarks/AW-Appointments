@@ -9,7 +9,7 @@ $settings=$awobj->getSettings();
 
 <div class="aw-appointment">
 <div class="panel panel-default">
-<div class="panel-heading">Appointments</div>
+<div class="panel-heading">Appointments <?php echo $settings['ver']; ?></div>
 <div class="panel-body">
 
 
