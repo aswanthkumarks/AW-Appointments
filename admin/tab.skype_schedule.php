@@ -1,11 +1,10 @@
 <div class="aw_shedulebox">
-<input type="hidden" value="0" class="aw_sh_type"/>
-
+<input type="hidden" value="1" class="aw_sh_type"/>
 <table class="aw-schedule">
 <tbody>
 <tr><th>Day</th><th style="min-width:300px;">Schedule</th><th>On or Off Day</th></tr>
 <?php
-foreach($settings['timing'] as $key=>$value){
+foreach($skype_settings['timing'] as $key=>$value){
 	?>
 	<tr><th><?php echo $awobj->getDayname($key); ?></th>
 	<td><a href="#" class="dashicons dashicons-plus toggleaw"></a>
@@ -30,8 +29,8 @@ foreach($settings['timing'] as $key=>$value){
 	$status="";
 	if($value['s']) $status='checked="checked"';
 	echo '<td><div class="switch">
-            <input id="cmn-toggle-'.$key.'" class="cmn-toggle cmn-toggle-round" rel="'.$key.'" '.$status.' type="checkbox">
-            <label for="cmn-toggle-'.$key.'"></label>
+            <input id="cmn-toggle-sk-'.$key.'" class="cmn-toggle cmn-toggle-round" rel="'.$key.'" '.$status.' type="checkbox">
+            <label for="cmn-toggle-sk-'.$key.'"></label>
           </div>			
 			</td>';
 	echo "</tr>";

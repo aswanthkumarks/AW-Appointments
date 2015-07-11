@@ -22,6 +22,23 @@ class Appointments{
 			],
 	];
 	}
+	
+	private static $skype=[
+			'timing'=>[
+					'mon'=>['s'=>0,'t'=>[]],
+					'tue'=>['s'=>0,'t'=>[]],
+					'wed'=>['s'=>0,'t'=>[]],
+					'thu'=>['s'=>0,'t'=>[]],
+					'fri'=>['s'=>0,'t'=>[]],
+					'sat'=>['s'=>0,'t'=>[]],
+					'sun'=>['s'=>0,'t'=>[]],
+					],
+			'noapp'=>[],
+			'skypeid'=>'',
+	];
+	
+	private static $theme=0;
+	
 	private static $dayname=[
 			'mon'=>'Monday',
 			'tue'=>'Tuesday',
@@ -40,6 +57,7 @@ class Appointments{
 			'sat'=>6,
 			'sun'=>0,
 	];
+	private static $skype_settings = [];
 	
 	private static $noapp = ['f'=>'','t'=>''];
 	private static $initiated = false;
@@ -50,7 +68,12 @@ class Appointments{
 			add_shortcode('aw-appointment', array('appointments', 'shortcode'));
 			self::init_hooks();
 			self::$settings=json_decode(get_option('aw-appointments'),true);
+			self::$skype_settings=json_decode(get_option('aw_appointment_skype'),true);
 		}	
+	}
+	
+	public function getskypeSettings(){
+		return self::$skype_settings;
 	}
 	
 	public static function init_hooks() {
@@ -62,6 +85,7 @@ class Appointments{
 		
 		
 	}
+	
 	
 	public static function load_resources(){
 		wp_register_style( 'jquery-ui', '//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css', array(), 1.11 );
@@ -90,12 +114,28 @@ class Appointments{
 		return $ret;
 	}
 	
+	function get_domain($url)
+	{
+		$pieces = parse_url($url);
+		$domain = isset($pieces['host']) ? $pieces['host'] : '';
+		if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $regs)) {
+			return $regs['domain'];
+		}
+		return false;
+	}
+	
 	public static function is_slot_awailable($vals,$settings){
 		$slots=0;
 		$awdate=date('Y-m-d',strtotime($vals['aw-date']));
 		$return['st']=false;
 		$return['val']='';
 		$day=strtolower(date('D', strtotime($vals['aw-date'])));
+		
+		if(isset($vals['aw-type'])){
+			if($vals['aw-type']=="skype"){
+				$settings=json_decode(get_option('aw_appointment_skype'),true);
+			}
+		}
 		
 		foreach($settings['timing'][$day]['t'] as $key=>$val){
 			if($key==$vals['aw-slot']) {
@@ -148,8 +188,7 @@ class Appointments{
 			$vals=$_POST;
 			$vals['ip']=self::get_client_ip();
 			$now=current_time( 'mysql' );
-			unset($vals['action']);
-			
+			unset($vals['action']);			
 			
 			if(isset($vals['aw-docid'])){
 				$docid=$vals['aw-docid'];
@@ -159,10 +198,27 @@ class Appointments{
 			
 			$slst=self::is_slot_awailable($vals,$settings);
 			$vals['aw-time']=$slst['val'];
-			if($slst['st']){		
-				
+			if($slst['st']){				
 			$date=date('Y-m-d',strtotime($vals['aw-date']));
 			unset($vals['aw-date']);
+			
+			/*
+			 * Normal Appointment
+			 */
+			$aw_type=0;
+			$success_msg="Appointment booked Successfully"; 
+			if(isset($vals['aw-type'])){
+				/*
+				 * Skype appointment
+				 */
+				if($vals['aw-type']=="skype"){
+					$success_msg="Your Skype appointment booked Successfully";
+					$aw_type=1;
+				}
+				unset($vals['aw-type']);			
+			}
+			
+			
 			global $wpdb;		
 			$ret=$wpdb->insert( self::appointmenttable(), 
 					array( 
@@ -170,15 +226,17 @@ class Appointments{
 							'docid' => $docid,
 							'createdon'=> $now,
 							'aw_details'=> json_encode($vals),
-							'isdel'=>'0'
+							'isdel'=>'0',
+							'aw_type'=>$aw_type
 			 ));
 			
 			
 			if($ret){
 				$response['status']=true;
-				$response['msg']="<li>Appointment booked Successfully</li>";
+				$response['msg']="<li class='alert-success'>".$success_msg."</li>";
 				$response['data']=$_POST;
 				$vals['aw-date']=$date;
+				$vals['aw-type']=$aw_type;
 				self::send_email_alert($vals,$settings);
 				unset($_SESSION[$sess]);
 				
@@ -215,6 +273,7 @@ class Appointments{
 		$remove=['aw-slot',
 				'aw-var',
 				'aw-captcha',
+				'aw-type',
 		];
 		$i=1;
 		foreach($vals as $k=>$v){
@@ -223,12 +282,29 @@ class Appointments{
 			}
 			$i++;			
 		}
+		$msg[$i]="</table>";
 		
 		if($settings['email']['cc']!="") $headers[] = 'Cc: '.$settings['email']['cc'];
 		if($settings['email']['bcc']!="") $headers[] = 'Bcc: '.$settings['email']['bcc'];		
+		$url=get_site_url();
+		$domain=self::get_domain($url);
 		
-		$sub="Appointment through ".get_site_url();
+		$sub="Appointment through ".$domain;
+		$skmsg="";
+		$skypedetails="";
+		$fromemail="no-replay@".$domain;
+		
+		$headers[] = 'From: '.$domain.' <'.$fromemail.'>';
+		$head[] = 'From: '.$domain.' <'.$fromemail.'>';
+		if($vals['aw-type']==1){
+			$sub="Skype appointment through ".$domain;
+			$skmsg="skype ";
+			$sksetting=json_decode(get_option('aw_appointment_skype'),true);
+			$skypedetails="<p>you will be receiving a skype call from the skype id <b>".$sksetting['skypeid']."</b></p>";
+		}
+		
 		add_filter( 'wp_mail_content_type', 'set_html_content_type' );
+		
 		function set_html_content_type() { return 'text/html';}
 		
 		if($settings['email']['to']!="") $to=explode(',',$settings['email']['to']);
@@ -239,8 +315,8 @@ class Appointments{
 		wp_mail( $to, $sub, $message, $headers );
 		
 		if($vals['aw-email']!=""){
-			$message="<p>Hi ".$vals['aw-name']."</p><p>Your appointment has been booked with the following details</p>".$message;
-			wp_mail( $vals['aw-email'], $sub, $message );
+			$message="<p>Hi ".$vals['aw-name']."</p><p>Your ".$skmsg." appointment has been booked with the following details</p>".$message.$skypedetails;
+			wp_mail( $vals['aw-email'], $sub, $message, $head );
 		}
 			
 	}
@@ -314,9 +390,14 @@ class Appointments{
 		return apply_filters( 'wpb_get_ip', $ip );
 	}
 	public static function shortcode($atts){
+		ob_start();
 		$opt=self::$settings;
-		
+		$sopt=self::$skype_settings;
 		if(!isset($atts['theam'])) $atts['theam']="basic";
+		elseif($atts['theam']=="skype"){
+			self::$theme=1;
+		}
+		
 
 		switch($atts['theam']){
 			case 'basic': require "template/basic.php"; break;
@@ -324,19 +405,27 @@ class Appointments{
 			default: require "theam/basic.php"; break;
 		}
 		
+		$output_string=ob_get_contents();
+		ob_end_clean();
 		add_action( 'wp_footer', array('appointments','aw_style'));
-		add_action( 'wp_footer', array('appointments','aw_scripts'));
+		add_action( 'wp_footer', array( __CLASS__,'aw_scripts'));
 		
+		return $output_string;
 	}
-	
-	public static function aw_scripts(){		
+
+public static function aw_scripts(){
 		$opt=self::$settings;
 		$disabled=[];
 		$disweek=[];
 		$min=date("n-j-Y",strtotime(date("Y-m-d", strtotime('now')) . " +".$opt['pm']."days"));
 		$max=date("n-j-Y",strtotime(date("Y-m-d", strtotime('now')) . " +".$opt['px']."days"));
 		
-		foreach ($opt['timing'] as $key=>$val){
+		$timings=$opt;
+		if(self::$theme==1){
+			$timings=self::$skype_settings;
+		}
+		
+		foreach ($timings['timing'] as $key=>$val){
 			if(!$val['s']) {
 				array_push($disweek, self::$week[$key]);
 			}
@@ -379,9 +468,11 @@ class Appointments{
 		else{
 			global $wpdb;
 			$aw_appointments = get_option( "aw-appointments" );
+			$aw_skype = json_decode(get_option("aw_appointment_skype"), true);
 			$aw_appointments=json_decode($aw_appointments, true);
 			
 			if($aw_appointments==NULL) $aw_appointments=self::aw_appointments();
+			if($aw_skype==NULL) $aw_skype = self::$skype;
 			
 			$awtable=self::appointmenttable();
 
@@ -404,9 +495,7 @@ class Appointments{
 				$aw_appointments['ver']=AW_APPOINTMENT_VERSION;
 				$aw_appointments=json_encode($aw_appointments);
 				update_option("aw-appointments", $aw_appointments );
-				
-			
-			
+				update_option("aw_appointment_skype", json_encode($aw_skype) );			
 		}
 	}
 	

@@ -4,7 +4,7 @@
 <input type="text" class="aw-date aw-input" placeholder="Choose Date" name="aw-date"/>
 
 <div class="aw-weeks">
-<?php foreach($opt['timing'] as $key=>$value){
+<?php foreach($sopt['timing'] as $key=>$value){
 	if($value['s']){
 		echo '<div id="aw-slot-'.appointments::$week[$key].'" class="aw-week aw-hideday"><div class="aw-slotkey">'.appointments::$dayname[$key].' :</div>';
 		foreach($value['t'] as $skey=>$slot){

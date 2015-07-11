@@ -119,7 +119,7 @@
 		
 		            function aw_showmsg(obj,msg){
 			            obj=obj.find('.aw-msg');
-			            if(msg=='<li>Appointment booked Successfully</li>'){
+			            if(msg.indexOf("class='alert-success'")!==-1){
 			            	obj.addClass('aw-success');
 			            	obj.closest('.aw-appointment').find('input[type=text],input[type=email],input[type=tel], textarea').val("");
 				         }

@@ -6,15 +6,22 @@ class Appointmentadmin{
 	private static $apdata = [];
 	
 	private static $settings = [];
+	
+	private static $skype_settings = [];
 		
 	public static function init() {
 		if ( ! self::$initiated ) {
 			self::init_hooks();
 			self::$settings=json_decode(get_option('aw-appointments'),true);
+			self::$skype_settings=json_decode(get_option('aw_appointment_skype'),true);
 		}	
 	}
 	public function getSettings(){
 		return self::$settings;
+	}
+	
+	public function getskypeSettings(){
+		return self::$skype_settings;
 	}
 
 	public function getDayname($day){
@@ -50,7 +57,7 @@ class Appointmentadmin{
 	}
 	
 	public static function admin_menu() {
-		add_menu_page('Appointments', 'Appointments', 'manage_options','aw-appointments/admin/index.php','','dashicons-backup', 4.55);
+		add_menu_page('Appointments', 'Appointments', 2,'aw-appointments/admin/index.php','','dashicons-backup', 4.55);
 	}
 	
 	public static function load_resources(){	
@@ -101,29 +108,33 @@ class Appointmentadmin{
 		echo "</div>";		
 	}
 	
-	public static function appointment_list($res=""){
+public static function appointment_list($res=""){
 		if($res==""){
 			 $res=self::load_appointments($_POST['d']);
 		}
 		
 		
-		$html='<table class="aw-schedule">
+		$html[0]='<table class="aw-schedule">
 		<tbody>
 		<tr>
 		<th>Name</th>
 		<th>Email</th>
 		<th>Phone</th>
-		<th>Date</th>
+		<th>Appointment Date</th>
 		<th>Time</th>
+		<th>Appointment Type</th>
 		<th>Appointment taken on</th>
 		</tr>';
 		
+
 		$remove=['aw-slot','aw-name',
 				'aw-email',
 				'aw-phone',
 				'aw-var',
 				'aw-captcha',
 				'aw-time',
+				'aw-type',
+				'paystatus'
 		];
 		$class="odd";
 		foreach($res['result'] as $r){
@@ -137,33 +148,41 @@ class Appointmentadmin{
 			}
 				
 			$details=json_decode($r->aw_details,true);			
-			$html.='<tr class="'.$class.'">';
-			$html.="<td>".$details['aw-name'].$r->isdel."</td>";
-			$html.="<td>".$details['aw-email']."</td>";
-			$html.="<td>".$details['aw-phone']."</td>";
-			$html.="<td>".date('d-m-Y',strtotime($r->aw_date))."</td>";
-			$html.="<td>";
+			array_push($html, '<tr class="'.$class.'">');
+			array_push($html, "<td>".$details['aw-name'].$r->isdel."</td>");
+			array_push($html, "<td>".$details['aw-email']."</td>");
+			array_push($html, "<td>".$details['aw-phone']."</td>");
+			array_push($html, "<td>".date('d-m-Y',strtotime($r->aw_date))."</td>");
+			array_push($html, "<td>");
 						
-			if(isset($details['aw-time'])) $html.=$details['aw-time'];
+			if(isset($details['aw-time'])) array_push($html, $details['aw-time']);
 			
-			$html.="</td>";
-			$html.="<td>".date('d-m-Y H:i:s',strtotime($r->createdon))."</td>";
-			$html.="<td><a title='$deltitle' class='aw_trash_app dashicons $isdel' data-isdel='".$r->isdel."' data-id='".$r->id."' href='#'></a></td>";
-			$html.="</tr>";
-			$html.='<tr class="'.$class.'">';
-			$html.="<td colspan='6'>";
+			array_push($html, "</td>");
+			if($r->aw_type==0)	array_push($html, "<td>Normal</td>");
+			elseif($r->aw_type==1)	array_push($html, "<td>Skype</td>");
+			
+			array_push($html, "<td>".date('d-m-Y H:i:s',strtotime($r->createdon))."</td>");
+			array_push($html,"<td><a title='$deltitle' class='aw_trash_app dashicons $isdel' data-isdel='".$r->isdel."' data-id='".$r->id."' href='#'></a></td>");
+			array_push($html,"</tr>");
+			array_push($html,'<tr class="'.$class.'">');
+			array_push($html,"<td colspan='6'>");
 			foreach ($details as $dk=>$dv){
 				if(!in_array($dk, $remove)){
-					$html.="<span class='aw_more'>".str_replace("aw-", "", $dk)." : ". $dv."</span>";
+					array_push($html, "<span class='aw_more'>".str_replace("aw-", "", $dk)." : ". $dv."</span>");
 				}
-			}		
-			$html.="</td>";
-			$html.="</tr>";
+			}
+
+		
+
+
+
+			array_push($html,"</td>");
+			array_push($html,"</tr>");
 			if($class=="odd") $class="even";
 			else $class="odd";		
 		}
-		$html.="</tbody></table>";
-		echo $html;
+		array_push($html,"</tbody></table>");
+		echo join($html);
 		
 		return "";		
 	}
@@ -193,6 +212,13 @@ class Appointmentadmin{
 		$response['resp']="";		
 		if(!empty($_POST['field'])){
 			$opt=json_decode(get_option('aw-appointments'),true);
+			
+			if(isset($_POST['shtype'])){
+				if($_POST['shtype']==1){
+					$opt=json_decode(get_option('aw_appointment_skype'),true);
+					
+				}
+			}
 			if($_POST['field']=='onoff'){
 				$opt['timing'][$_POST['key']]['s']=$_POST['value'];
 				$response['resp']=true;
@@ -233,6 +259,9 @@ class Appointmentadmin{
 				if($opt['px']<1) $opt['px']=1;
 				if($opt['pm']<0) $opt['pm']=0;
 				
+				$skype_opt=json_decode(get_option('aw_appointment_skype'),true);
+				$skype_opt['skypeid']=$_POST['skype'];
+				update_option('aw_appointment_skype', json_encode($skype_opt));
 				$response['resp']=true;
 			}
 			elseif($_POST['field']=="disabledetails"){
@@ -281,8 +310,22 @@ class Appointmentadmin{
 				$response['resp']=true;
 				$response['data']=$opt['noapp'];
 				
-			}			
-			update_option('aw-appointments', json_encode($opt));
+			}
+
+			
+			
+			/*
+			 * Update Options
+			 */
+			$skoption=false;
+			if(isset($_POST['shtype'])){
+				if($_POST['shtype']==1){
+					update_option('aw_appointment_skype', json_encode($opt));
+					$skoption=true;
+						
+				}
+			}
+			if(!$skoption) update_option('aw-appointments', json_encode($opt));
 			
 		} else {
 			$response['resp'] = "You didn't send the param";

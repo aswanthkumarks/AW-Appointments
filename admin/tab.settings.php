@@ -19,7 +19,7 @@
   </td></tr>
   </table>
   </td></tr>
-  
+  <tr><td>Skype Id </td><td><input type="text" class="regular-text code" id="aw_skypeid" name="aw-setting[skype]" value="<?php echo $skype_settings['skypeid']; ?>"/></td></tr>
   </tbody>
   </table>
   <p class="submit"><input type="button" name="submit" id="aw-settings1" class="button button-primary" value="Save Changes"></p>

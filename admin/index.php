@@ -3,6 +3,7 @@ $awobj=new Appointmentadmin();
 if(isset($_POST['aw-setting'])) $awobj->saveSettings($_POST['aw-setting']);
 
 $settings=$awobj->getSettings();
+$skype_settings=$awobj->getskypeSettings();
 
 ?>
 
@@ -17,6 +18,7 @@ $settings=$awobj->getSettings();
 <ul class="nav-tabs" role="tablist" id="aw-appointment-tab">
   <li role="presentation" class="active"><a href="#aw-applist" class="dashicons-before dashicons-backup" aria-controls="home" role="tab" data-toggle="tab">Appointments</a></li>
   <li role="presentation"><a href="#aw-schedule" aria-controls="schedule" role="tab" data-toggle="tab">General Schedule</a></li>
+  <li role="presentation"><a href="#aw-skype-schedule" aria-controls="aw-skype-schedule" role="tab" data-toggle="tab">Skype Schedule</a></li>
   <li role="presentation"><a href="#aw-settings" class="dashicons-before dashicons-admin-generic" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
   <li><a href="#aw-trash" aria-controls="trash" role="tab" data-toggle="tab">Trash</a></li>
 </ul>
@@ -27,6 +29,9 @@ $settings=$awobj->getSettings();
   </div>
   <div role="tabpanel" class="tab-pane" id="aw-schedule">
   	<?php require_once 'tab.schedule.php';?>
+  </div>
+  <div role="tabpanel" class="tab-pane" id="aw-skype-schedule">
+  	<?php require_once 'tab.skype_schedule.php';?>
   </div>
   <div role="tabpanel" class="tab-pane" id="aw-settings">
   <?php require_once 'tab.settings.php';?>  
@@ -47,7 +52,10 @@ $settings=$awobj->getSettings();
 </div>
 
 
-<script>
+<script type="text/javascript">
+
+var aw_appo={pluginurl:"<?php echo AW_APPOINTMENT_PLUGIN_URL;?>"};
+
 (function($){
 	$('.toggleaw').click(function(){
 		if($(this).parent().find('.settime').css('display')=='none'){
@@ -82,8 +90,11 @@ $settings=$awobj->getSettings();
 			status=0;		
 		}
 		var awcover=aw_show_loading();
-		var data={ action: 'aw_update_options' , field: 'onoff', key: skey,value: status };
-		
+
+		var shtype=$(this).closest('.aw_shedulebox');
+		shtype=shtype.find('.aw_sh_type').val();
+		var data={ action: 'aw_update_options' ,shtype : shtype, field: 'onoff', key: skey,value: status };
+		console.log(data);
 		jQuery.post(ajaxurl, data, function(response) {
 		     
 		}).always(function() {
@@ -97,7 +108,8 @@ $settings=$awobj->getSettings();
 		var rkey=$(this).attr('rel');
 		var td=$(this).closest('td');
 		var awcover=aw_show_loading();	
-		var data={ action: 'aw_update_options' , field: 'deletesch', day: day, key: rkey };		
+		var shtype=$(this).closest('.aw_shedulebox').find('.aw_sh_type').val();
+		var data={ action: 'aw_update_options' ,shtype : shtype, field: 'deletesch', day: day, key: rkey };		
 		$.post(ajaxurl, data, function(response) {
 			if(response.resp) populateschedule(td,response.data);
 		}).always(function() {
@@ -126,10 +138,13 @@ $settings=$awobj->getSettings();
 		
 		});
 	$('.scheduletime').click(function(){
+		
 		var obj=$(this).parent('.settime');
 		var ft=obj.find('.timefrom').val();
 		var tt=obj.find('.timeto').val();
 		var nos=obj.find('.nos').val();
+
+		var shtype=$(this).closest('.aw_shedulebox').find('.aw_sh_type').val();
 
 		var td=$(this).closest('.settime').closest('td');
 		
@@ -138,7 +153,7 @@ $settings=$awobj->getSettings();
 					
 			var skey= $(this).attr('rel');
 			if(nos==''||Number(nos)<1) nos=5;		
-			var data={ action: 'aw_update_options' , field: 'newsch', key: skey, from: ft, to: tt , noa: nos };	
+			var data={ action: 'aw_update_options' ,shtype : shtype, field: 'newsch', key: skey, from: ft, to: tt , noa: nos };	
 					
 			$.post(ajaxurl, data, function(response) {
 				
@@ -165,7 +180,7 @@ $("#aw-settings1").click(function(){
 
 		var awcover=aw_show_loading();
 		
-		var data={ action: 'aw_update_options' , field: 'alertdetails', to: eto, cc: ecc, bcc: ebcc, prmax: $('#eprimax').val(), prmin: $('#eprimin').val() };	
+		var data={ action: 'aw_update_options' , field: 'alertdetails', to: eto, cc: ecc, bcc: ebcc, prmax: $('#eprimax').val(), prmin: $('#eprimin').val(),skype : $('#aw_skypeid').val() };	
 		$.post(ajaxurl, data, function(response) {
 			if(response.resp){
 				aw_show_msg(obj.closest('.wrap'),"Settings updated successfully");
@@ -191,7 +206,7 @@ function populatedisabled(data){
 
 function aw_show_loading(){
 	ph=$('.aw-appointment .tab-pane.active').height();	
-	var awcover=$('<div class="aw-cover-panel" style="height:'+ph+'px"><img src="<?php echo AW_APPOINTMENT_PLUGIN_URL;?>loading.gif"/></div>');			
+	var awcover=$('<div class="aw-cover-panel" style="height:'+ph+'px"><img src="'+aw_appo.pluginurl+'loading.gif"/></div>');			
 	$('.aw-appointment .tab-pane.active').append(awcover);
 	return awcover;
 }
@@ -280,7 +295,6 @@ $(document).on('click','.aw_trash_app',function(){
 })(jQuery);
 
 function aw_validatedate(dt){
-
 	return true;
 }
 function aw_validateemail(email){
