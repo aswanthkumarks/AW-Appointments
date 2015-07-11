@@ -498,7 +498,7 @@ public static function aw_scripts(){
 				update_option("aw_appointment_skype", json_encode($aw_skype) );			
 		}
 	}
-	
+		
 	/**
 	 * Removes all connection options
 	 * @static
